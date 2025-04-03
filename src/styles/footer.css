@@ -1,0 +1,219 @@
+/* footer.css - Modern styling for BidSphere footer with reduced height */
+
+/* Main footer styling */
+footer {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: #495057;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-top: 3px solid #87ceeb;
+}
+
+/* Back to top section */
+.footer-top {
+    background: linear-gradient(to right, #87ceeb, #5dade2);
+    text-align: center;
+    padding: 10px 0; /* Reduced from 15px */
+    transition: all 0.3s ease;
+}
+
+.footer-top:hover {
+    background: linear-gradient(to right, #5dade2, #3498db);
+}
+
+.footer-top a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    padding: 5px 15px; /* Reduced from 8px 20px */
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.footer-top a:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.footer-top a::after {
+    content: "↑";
+    margin-left: 8px;
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.footer-top a:hover::after {
+    transform: translateY(-5px);
+}
+
+/* Footer content section */
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px 5%; /* Reduced from 40px 5% */
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    margin: 10px; /* Reduced from 15px */
+}
+
+.footer-section h3 {
+    color: #0d6efd;
+    font-size: 1.3rem;
+    margin-bottom: 15px; /* Reduced from 20px */
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 5px; /* Reduced from 10px */
+}
+
+.footer-section h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 50px;
+    background: linear-gradient(to right, #87ceeb, #5dade2);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.footer-section:hover h3::after {
+    width: 70px;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 8px; /* Reduced from 12px */
+    transition: transform 0.3s ease;
+}
+
+.footer-section ul li:hover {
+    transform: translateX(5px);
+}
+
+.footer-section ul li a {
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+}
+
+.footer-section ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #0d6efd;
+    transition: width 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #0d6efd;
+}
+
+.footer-section ul li a:hover::after {
+    width: 100%;
+}
+
+/* Social media icons */
+.footer-section ul li a i {
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.footer-section ul li a:hover i.fa-facebook {
+    color: #3b5998;
+    transform: scale(1.2);
+}
+
+.footer-section ul li a:hover i.fa-twitter {
+    color: #1da1f2;
+    transform: scale(1.2);
+}
+
+.footer-section ul li a:hover i.fa-instagram {
+    color: #e1306c;
+    transform: scale(1.2);
+}
+
+.footer-section ul li a:hover i.fa-linkedin {
+    color: #0077b5;
+    transform: scale(1.2);
+}
+
+/* Footer bottom section */
+.footer-bottom {
+    background-color: #e9ecef;
+    text-align: center;
+    padding: 15px 0; /* Reduced from 20px */
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+    }
+    
+    .footer-section {
+        margin: 5px 0; /* Reduced from 10px */
+    }
+    
+    .footer-section h3 {
+        margin-top: 15px; /* Reduced from 20px */
+    }
+}
+
+/* Animation for footer appearance */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.footer-section {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.footer-section:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.footer-section:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.footer-section:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.footer-section:nth-child(4) {
+    animation-delay: 0.4s;
+}

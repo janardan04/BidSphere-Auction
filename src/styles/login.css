@@ -1,0 +1,207 @@
+/* Login page specific styles with sky blue theme */
+:root {
+    --primary-color: #47a0dc;  /* Sky blue primary color */
+    --primary-hover: #3989c3;
+    --secondary-color: #f0f8ff; /* Light sky blue */
+    --text-color: #2c3e50;
+    --accent-color: #74c0fc;
+  }
+  
+  body {
+    background-color: var(--secondary-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    margin: 1rem auto;
+  }
+  
+  .login-card {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0.5rem 1.5rem rgba(71, 160, 220, 0.2);
+    padding: 2rem;
+    transition: all 0.3s ease;
+    border-top: 4px solid var(--primary-color);
+  }
+  
+  .login-card:hover {
+    box-shadow: 0 1rem 2rem rgba(71, 160, 220, 0.3);
+  }
+  
+  .login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .login-header h2 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: calc(1.3rem + 0.6vw);
+  }
+  
+  .login-header p {
+    color: #6c757d;
+  }
+  
+  .form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+  }
+  
+  .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(71, 160, 220, 0.25);
+  }
+  
+  .form-label {
+    color: var(--text-color);
+    font-weight: 500;
+  }
+  
+  .btn-signin {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 500;
+    transition: all 0.3s;
+    color: white;
+  }
+  
+  .btn-signin:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-2px);
+  }
+  
+  .btn-link {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .btn-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+  }
+  
+  .register-link {
+    color: var(--accent-color);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .register-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+  
+  .alert {
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .form-floating input {
+    height: auto;
+    min-height: calc(3.5rem + 2px);
+    padding: 1rem 0.75rem;
+  }
+  
+  .form-floating label {
+    padding: 1rem 0.75rem;
+    color: #6c757d;
+  }
+  
+  .password-toggle-icon {
+    cursor: pointer;
+    z-index: 5;
+  }
+  
+  /* Animation improvements */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .login-card {
+    animation: fadeIn 0.6s ease-out;
+  }
+  
+  /* Bootstrap 5 responsive adjustments */
+  @media (max-width: 576px) {
+    .login-container {
+      max-width: 95%;
+      padding: 10px;
+    }
+    
+    .login-card {
+      padding: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .login-header h2 {
+      font-size: 1.3rem;
+    }
+    
+    .form-floating input,
+    .btn-signin {
+      font-size: 14px;
+    }
+    
+    .form-check-label, .btn-link, p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  /* For extremely small screens */
+  @media (max-width: 320px) {
+    .login-card {
+      padding: 1rem;
+    }
+    
+    .login-header {
+      margin-bottom: 1rem;
+    }
+    
+    .form-floating {
+      margin-bottom: 0.75rem !important;
+    }
+  }
+  
+  /* Custom form check for sky blue theme */
+  .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  /* Custom animations for form elements */
+  .animate__fadeIn {
+    animation-duration: 0.8s;
+  }
+  
+  .animate__bounceIn {
+    animation-duration: 1s;
+  }

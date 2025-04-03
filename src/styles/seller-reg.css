@@ -1,0 +1,181 @@
+/* src/styles/register.css */
+
+:root {
+    --sky-blue-primary: #4dabf7;
+    --sky-blue-secondary: #339af0;
+    --sky-blue-dark: #228be6;
+    --sky-blue-light: #74c0fc;
+    --sky-blue-lighter: #e7f5ff;
+    --sky-blue-gradient: linear-gradient(135deg, #4dabf7 0%, #228be6 100%);
+  }
+  
+  /* Container styling */
+  .reg-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+    background-color: #f8f9fa;
+    max-width: 500px;
+  }
+  
+  .seller-reg-card {
+    width: 100%;
+    max-width: 800px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-top: 5px solid var(--sky-blue-primary);
+  }
+  
+  /* Header styling */
+  .seller-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .seller-header h2 {
+    color: var(--sky-blue-dark);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .seller-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--sky-blue-gradient);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
+  }
+  
+  /* Form styling */
+  .form-floating .form-control:focus {
+    border-color: var(--sky-blue-primary);
+    box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
+  }
+  
+  .form-floating .form-control:focus~label,
+  .form-floating .form-control:not(:placeholder-shown)~label {
+    color: var(--sky-blue-primary);
+  }
+  
+  .form-check-input:checked {
+    background-color: var(--sky-blue-primary);
+    border-color: var(--sky-blue-primary);
+  }
+  
+  .form-floating .form-select {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+  }
+  
+  .form-floating .form-select:focus {
+    border-color: var(--sky-blue-primary);
+    box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
+  }
+  
+  /* Override Bootstrap's primary button for our theme */
+  .btn-primary {
+    background: var(--sky-blue-gradient);
+    border: none;
+    color: white;
+    padding: 12px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #228be6 0%, #1971c2 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(34, 139, 230, 0.4);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(34, 139, 230, 0.4);
+  }
+  
+  /* Link styling */
+  a {
+    color: var(--sky-blue-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  a:hover {
+    color: var(--sky-blue-dark);
+    text-decoration: underline;
+  }
+  
+  /* Error messages */
+  .text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Alert styling */
+  .alert {
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: none;
+  }
+  
+  .alert-danger {
+    background-color: #ffe3e3;
+    color: #e03131;
+  }
+  
+  /* Modal customization */
+  .modal-header {
+    background-color: var(--sky-blue-lighter);
+    border-bottom: 2px solid var(--sky-blue-light);
+  }
+  
+  .modal-title {
+    color: var(--sky-blue-dark);
+    font-weight: 600;
+  }
+  
+  .modal-header .btn-close:focus {
+    box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
+  }
+  
+  .modal-body h6 {
+    color: var(--sky-blue-dark);
+    margin-top: 1rem;
+  }
+  
+  .modal-footer .btn-secondary {
+    background-color: #adb5bd;
+    border: none;
+  }
+  
+  .modal-footer .btn-secondary:hover {
+    background-color: #868e96;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .seller-reg-card {
+      padding: 20px;
+    }
+    
+    .btn-primary {
+      padding: 10px;
+    }
+    
+    .seller-header h2 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  /* Animations from animate.css are already included in your HTML */

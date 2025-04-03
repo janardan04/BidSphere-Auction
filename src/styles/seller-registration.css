@@ -1,0 +1,153 @@
+/* Seller registration page specific styles */
+.seller-reg-page {
+    background-color: #f8f9fa; /* Match login page background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 120vh; /* Match login page */
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seller-reg-container {
+    width: 120%; /* Match login page */
+    max-width: 450px; /* Match login page */
+    padding: 40px;
+    margin: 3rem auto;
+}
+
+.seller-reg-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+    animation: sellerRegFadeIn 0.6s ease-out; /* Match login page animation */
+}
+
+.seller-reg-card:hover {
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15); /* Match login page hover effect */
+}
+
+.seller-reg-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.seller-reg-header h2 {
+    color: #232f3e; /* Match login page */
+    font-weight: 600;
+}
+
+.seller-reg-form-control {
+    border-radius: 7px; /* Match login page */
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    border: 1px solid #ced4da;
+    transition: all 0.2s;
+}
+
+.seller-reg-form-control:focus {
+    border-color: #4DA8DA; /* Use primary color */
+    box-shadow: 0 0 0 0.25rem rgba(77, 168, 218, 0.25); /* Match primary color */
+}
+
+.seller-reg-form-label {
+    color: #495057; /* Match login page */
+    font-weight: 500;
+}
+
+.seller-reg-btn-signin {
+    background: linear-gradient(135deg, #4DA8DA, #2B7CB6); /* Use primary color gradient */
+    border: none;
+    border-radius: 7px;
+    padding: 12px;
+    font-weight: 500;
+    color: #ffffff; /* White text for contrast */
+    transition: all 0.3s;
+}
+
+.seller-reg-btn-signin:hover {
+    background: linear-gradient(135deg, #2B7CB6, #4DA8DA); /* Reverse gradient on hover */
+    transform: translateY(-2px);
+}
+
+.seller-reg-login-link,
+.seller-reg-home-link {
+    color: #232f3e; /* Match login page btn-link */
+    text-decoration: none;
+}
+
+.seller-reg-login-link:hover,
+.seller-reg-home-link:hover {
+    color: #37475a; /* Match login page hover */
+    text-decoration: underline;
+}
+
+.seller-reg-alert {
+    border-radius: 7px; /* Match login page */
+    font-size: 0.9rem;
+}
+
+.form-floating input,
+.form-floating textarea {
+    height: calc(3.5rem + 2px); /* Match login page */
+    padding: 1rem 0.75rem;
+}
+
+.form-floating textarea {
+    height: 100px !important; /* Override for textarea height */
+}
+
+.form-floating label {
+    padding: 1rem 0.75rem; /* Match login page */
+    color: #495057; /* Match login page */
+    font-weight: 500;
+}
+
+.seller-reg-password-toggle {
+    border-left: none; /* Match login page */
+}
+
+.seller-reg-password-toggle-icon {
+    cursor: pointer; /* Match login page */
+}
+
+/* Animation for page loading */
+@keyframes sellerRegFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .seller-reg-container {
+        max-width: 95%; /* Match login page */
+    }
+    
+    .seller-reg-card {
+        padding: 1.5rem; /* Match login page */
+    }
+    
+    .seller-reg-header h2 {
+        font-size: 1.3rem; /* Match login page */
+    }
+    
+    .form-floating input,
+    .form-floating textarea,
+    .seller-reg-btn-signin {
+        font-size: 14px; /* Match login page */
+        padding: 10px;
+    }
+}

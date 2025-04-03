@@ -1,0 +1,171 @@
+@charset "UTF-8";
+/* Updated Add Product Page CSS */
+:root {
+  --primary-color: #2a2a72;
+  --secondary-color: #009ffd;
+  --accent-color: #ff3f80;
+  --text-dark: #2c3e50;
+  --text-light: #333;
+  --border-color: #ddd;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background-color: #ffffff;
+  font-family: "Arial", sans-serif;
+  color: var(--text-dark);
+}
+
+/* Smaller, Compact Container */
+.auction-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  padding: 1.5rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.auction-container:hover {
+  transform: translateY(-4px);
+}
+
+/* Header */
+.auction-header {
+  text-align: center;
+  padding: 1.2rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.auction-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+/* Form Styling */
+.auction-form {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1.8px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 5px rgba(0, 159, 253, 0.2);
+  outline: none;
+}
+
+/* Date-Time Group */
+.datetime-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.datetime-group .form-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Submit Button */
+.submit-btn {
+  background: var(--accent-color);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  width: 100%;
+  text-transform: uppercase;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 63, 128, 0.3);
+}
+
+.submit-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Back Link */
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auction-container {
+    max-width: 90%;
+    padding: 1rem;
+  }
+
+  .auction-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .datetime-group {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-control {
+    padding: 0.5rem 0.8rem;
+  }
+
+  .submit-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Smooth Fade-in Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auction-container {
+  animation: fadeIn 0.5s ease-out;
+}

@@ -1,0 +1,206 @@
+/* header.css - Modern styling for BidSphere header */
+
+/* Main header styling */
+.custom-header {
+    background: linear-gradient(135deg, #f8f9fa, #8bd7e5);
+    padding: 10px;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid #87ceeb;
+}
+
+.custom-header:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Brand/Logo styling as button */
+.navbar-brand {
+    font-size: 1.8rem;
+    background: linear-gradient(45deg, #0d6efd, #87ceeb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s ease;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+    text-decoration: none;
+}
+
+/* Navigation links as buttons */
+.navbar-nav .nav-link {
+    font-weight: 650;
+    color: #495057;
+    margin: 0 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.42, 0, 0.4, 2.04);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: rgba(135, 206, 235, 0.2);
+    transform: translateY(-2px);
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: #87ceeb;
+    color: white;
+}
+
+/* Search form styling */
+.search-form {
+    margin-right: 10px;
+}
+
+.search-input {
+    border-radius: 20px 0 0 20px;
+    border: 2px solid #87ceeb;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.search-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-search {
+    border-radius: 0 20px 20px 0;
+    background-color: #87ceeb;
+    border: 2px solid #87ceeb;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Custom dropdown styling - moved from inline to external */
+.login-dropdown .dropdown-menu {
+    background: linear-gradient(135deg, rgba(240, 248, 255, 0.3), rgba(135, 206, 235, 0.3)); /* Adjust transparency */
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transform-origin: top center;
+    animation: dropdown-anim 0.3s ease-out;
+    backdrop-filter: blur(8px); /* Optional: Adds a glass effect */
+}
+
+
+@keyframes dropdown-anim {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-dropdown .dropdown-item {
+    font-weight: 600;
+    color: #0d6efd;
+    transition: all 0.3s ease-in-out;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 5px;
+}
+
+.login-dropdown .dropdown-item:hover {
+    background: #0d6efd;
+    color: white;
+    transform: translateX(5px);
+}
+
+.login-dropdown .dropdown-item i {
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+}
+
+.login-dropdown .dropdown-item:hover i {
+    transform: scale(1.2);
+}
+
+.login-dropdown .dropdown-toggle {
+    background: linear-gradient(to right, #87ceeb, #5dade2);
+    border: none;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+    color: white;
+}
+
+.login-dropdown .dropdown-toggle:hover {
+    background: linear-gradient(to right, #5dade2, #3498db);
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-link {
+        margin: 5px 0;
+        width: 100%;
+        text-align: left;
+    }
+    
+    .search-form {
+        margin: 10px 0;
+        width: 100%;
+    }
+    
+    .login-dropdown {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .login-dropdown .dropdown-toggle {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Navbar toggler custom styling */
+.navbar-toggler {
+    border: none;
+    background: rgba(135, 206, 235, 0.2);
+    border-radius: 5px;
+    padding: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar-toggler:hover {
+    background: rgba(135, 206, 235, 0.4);
+    transform: rotate(5deg);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.25rem rgba(135, 206, 235, 0.5);
+}
+
+.logout-button {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logout-button:hover {
+    transform: scale(1.1); /* Slightly enlarge the button */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+}

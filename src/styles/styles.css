@@ -1,0 +1,104 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Ensure content is not hidden under the fixed header and footer */
+body {
+    padding-top: 60px; /* Match the header height */
+    padding-bottom: 60px; /* Match the footer height */
+}
+
+/* Centering the Form (for login.jsp, register.jsp, etc.) */
+.login-form {
+    width: 50%;
+    margin: auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Labels */
+.login-form label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+/* Form Inputs and Selects */
+.login-form input,
+.login-form textarea,
+.login-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Form Button */
+.login-form button,
+.login-form input[type="submit"] {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-form button:hover,
+.login-form input[type="submit"]:hover {
+    background: darkgreen;
+}
+
+/* Error Message Styling */
+.error {
+    color: red;
+    font-size: 14px;
+    display: none;
+}
+
+/* Navigation Links (for pages like login.jsp) */
+.nav-links {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    margin: 0 15px;
+}
+
+.nav-links a:hover {
+    color: green;
+}
+
+/* Responsive Design for Forms */
+@media (max-width: 768px) {
+    .login-form {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        width: 90%;
+    }
+
+    .login-form button,
+    .login-form input[type="submit"] {
+        font-size: 14px;
+    }
+}

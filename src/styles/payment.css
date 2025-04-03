@@ -1,0 +1,169 @@
+/* payment.css */
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 0.75rem;
+  }
+  
+  .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    background-color: #ffffff;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card h4 {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .card p {
+    color: #7f8c8d;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .card p:last-of-type {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eaeaea;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .form-check {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+  }
+  
+  .form-check-input {
+    margin-top: 0.35rem;
+  }
+  
+  .form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+  
+  .form-check-label {
+    color: #34495e;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .btn-success {
+    background-color: #28a745;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-success:hover:not(:disabled) {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .btn-success:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #28a745;
+  }
+  
+  .alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+  
+  .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    
+    .btn-success {
+      width: 100%;
+    }
+    
+    .card {
+      padding: 1.25rem !important;
+    }
+  }
+  
+  /* Payment method selection enhancement */
+  .form-check {
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+  }
+  
+  .form-check:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .form-check-input:checked + .form-check-label {
+    color: #218838;
+    font-weight: 600;
+  }
+  
+  /* Animation for success message */
+  .alert-success {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
