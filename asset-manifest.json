@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/BidSphere-Auction/static/css/main.f33d72bd.css",
+    "main.js": "/BidSphere-Auction/static/js/main.bcf15fff.js",
+    "index.html": "/BidSphere-Auction/index.html",
+    "main.f33d72bd.css.map": "/BidSphere-Auction/static/css/main.f33d72bd.css.map",
+    "main.bcf15fff.js.map": "/BidSphere-Auction/static/js/main.bcf15fff.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f33d72bd.css",
+    "static/js/main.bcf15fff.js"
+  ]
+}
