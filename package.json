@@ -2,7 +2,7 @@
   "name": "bidsphere",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://janardan04.github.io/",
+  "homepage": "https://janardan04.github.io/BidSphere-Auction",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@testing-library/dom": "^10.4.0",
