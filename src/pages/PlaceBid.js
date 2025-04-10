@@ -1,7 +1,6 @@
-// src/pages/PlaceBid.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ref, get, update } from 'firebase/database';
+import { ref, onValue, update } from 'firebase/database';
 import { auth, database } from '../firebase/firebaseConfig';
 import { Carousel } from 'react-bootstrap';
 import '../styles/place-bid.css';
@@ -14,31 +13,41 @@ const PlaceBid = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState('');
+    const [priceChanged, setPriceChanged] = useState(false);
+    const prevPrice = useRef(null); // Use ref to track previous price
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            const productRef = ref(database, `auctions/${id}`);
-            try {
-                const snapshot = await get(productRef);
+        const productRef = ref(database, `auctions/${id}`);
+        const unsubscribeProduct = onValue(
+            productRef,
+            (snapshot) => {
                 if (snapshot.exists()) {
                     const productData = snapshot.val();
-                    console.log('Fetched product data:', productData);
+                    const currentPrice = productData.currentPrice;
+                    if (prevPrice.current !== null && prevPrice.current !== currentPrice) {
+                        setPriceChanged(true);
+                        setTimeout(() => setPriceChanged(false), 800);
+                    }
+                    prevPrice.current = currentPrice; // Update previous price
                     setProduct({ id, ...productData });
                 } else {
                     setError('Product not found.');
                 }
-            } catch (err) {
+                setLoading(false);
+            },
+            (err) => {
                 setError('Failed to load product: ' + err.message);
-            } finally {
                 setLoading(false);
             }
-        };
+        );
 
-        const fetchLiveAuctions = async () => {
-            const auctionsRef = ref(database, 'auctions');
-            try {
-                const snapshot = await get(auctionsRef);
+        const auctionsRef = ref(database, 'auctions');
+        const unsubscribeAuctions = onValue(
+            auctionsRef,
+            (snapshot) => {
                 if (snapshot.exists()) {
                     const auctionsData = snapshot.val();
                     const currentTime = new Date().getTime();
@@ -50,23 +59,22 @@ const PlaceBid = () => {
                             const startTime = auction.startTime || 0;
                             const endTime = auction.endTime || 0;
                             if (currentTime >= startTime && currentTime < endTime) {
-                                liveAuctionsList.push({
-                                    id: auctionId,
-                                    ...auction,
-                                });
+                                liveAuctionsList.push({ id: auctionId, ...auction });
                             }
                         }
                     });
-
                     setLiveAuctions(liveAuctionsList);
                 }
-            } catch (err) {
+            },
+            (err) => {
                 console.error('Error fetching live auctions:', err);
             }
-        };
+        );
 
-        fetchProduct();
-        fetchLiveAuctions();
+        return () => {
+            unsubscribeProduct();
+            unsubscribeAuctions();
+        };
     }, [id]);
 
     const handlePlaceBid = async (e) => {
@@ -79,6 +87,8 @@ const PlaceBid = () => {
             setTimeout(() => navigate('/login'), 2000);
             return;
         }
+
+        if (!product) return;
 
         const currentTime = new Date().getTime();
         if (currentTime < product.startTime) {
@@ -102,25 +112,27 @@ const PlaceBid = () => {
                 currentPrice: bidValue,
                 highestBidder: auth.currentUser.email,
             });
-
             setSuccess('Bid placed successfully!');
-            setProduct((prev) => ({
-                ...prev,
-                currentPrice: bidValue,
-                highestBidder: auth.currentUser.email,
-            }));
             setBidAmount('');
         } catch (err) {
             setError('Failed to place bid: ' + err.message);
         }
     };
 
+    const handleImageClick = (imageUrl) => {
+        setSelectedImage(imageUrl);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedImage('');
+    };
+
     if (loading) {
         return (
-            <div className="text-center my-5">
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
+            <div className="spinner-container">
+                <div className=" spinner"></div>
             </div>
         );
     }
@@ -133,43 +145,36 @@ const PlaceBid = () => {
         );
     }
 
-    // Determine image source: base64 string (old format) or array of URLs (new format)
-    const imageSources = product.images && product.images.length > 0 
+    const imageSources = product?.images?.length > 0 
         ? product.images 
-        : product.image 
+        : product?.image 
         ? [product.image] 
         : [];
 
     return (
-        <div className="place-bid-page" style={{ paddingTop: '80px' }}>
-            <div className="container">
+        <div className="place-bid-page">
+            <div className="container py-4">
                 <div className="row">
                     <div className="col-md-6">
                         {imageSources.length > 0 ? (
                             imageSources.length === 1 ? (
                                 <img
-                                    src={imageSources[0]}
+                                    src={imageSources[0] || "/placeholder.svg"}
                                     alt="Product"
-                                    className="img-fluid"
-                                    style={{ height: '400px', objectFit: 'cover' }}
-                                    onError={(e) => {
-                                        console.error('Image failed to load:', imageSources[0]);
-                                        e.target.src = 'https://via.placeholder.com/400';
-                                    }}
+                                    className="product-image"
+                                    onClick={() => handleImageClick(imageSources[0])}
+                                    onError={(e) => (e.target.src = 'https://via.placeholder.com/400')}
                                 />
                             ) : (
-                                <Carousel>
+                                <Carousel className="carousel">
                                     {imageSources.map((imageUrl, index) => (
                                         <Carousel.Item key={index}>
                                             <img
                                                 className="d-block w-100"
-                                                src={imageUrl}
+                                                src={imageUrl || "/placeholder.svg"}
                                                 alt={`Product ${index + 1}`}
-                                                style={{ height: '400px', objectFit: 'cover' }}
-                                                onError={(e) => {
-                                                    console.error('Image failed to load:', imageUrl);
-                                                    e.target.src = 'https://via.placeholder.com/400';
-                                                }}
+                                                onClick={() => handleImageClick(imageUrl)}
+                                                onError={(e) => (e.target.src = 'https://via.placeholder.com/400')}
                                             />
                                         </Carousel.Item>
                                     ))}
@@ -181,105 +186,101 @@ const PlaceBid = () => {
                                 <img
                                     src="https://via.placeholder.com/400"
                                     alt="Product"
-                                    className="img-fluid"
-                                    style={{ height: '400px', objectFit: 'cover' }}
+                                    className="product-image"
                                 />
                             </div>
                         )}
                     </div>
                     <div className="col-md-6">
-                        <h2>{product.productName}</h2>
-                        <p>{product.description}</p>
-                        <p>
-                            <strong>Starting Price:</strong> ₹{product.startingPrice}
-                        </p>
-                        <p>
-                            <strong>Current Bid:</strong> ₹{product.currentPrice}
-                        </p>
-                        <p>
-                            <strong>Highest Bidder:</strong> {product.highestBidder || 'No bids yet'}
-                        </p>
-                        <p>
-                            <strong>Start Time:</strong> {new Date(product.startTime).toLocaleString()}
-                        </p>
-                        <p>
-                            <strong>End Time:</strong> {new Date(product.endTime).toLocaleString()}
-                        </p>
-
-                        <form onSubmit={handlePlaceBid} className="mt-4">
-                            <div className="mb-3">
-                                <label htmlFor="bidAmount" className="form-label">
-                                    Your Bid (₹)
-                                </label>
-                                <input
-                                    type="number"
-                                    className="form-control"
-                                    id="bidAmount"
-                                    value={bidAmount}
-                                    onChange={(e) => setBidAmount(e.target.value)}
-                                    min={product.currentPrice + 1}
-                                    required
-                                />
+                        <div className="product-details">
+                            <h1>{product?.productName || 'Loading...'}</h1>
+                            <p className="text-gray-600">{product?.description || 'No description available'}</p>
+                            
+                            <div className="product-info-grid">
+                                <div className="info-box">
+                                    <p className="info-label">Starting Price</p>
+                                    <p className="info-value">₹{product?.startingPrice || 'N/A'}</p>
+                                </div>
+                                <div className="info-box highlight">
+                                    <p className="info-label">Current Bid</p>
+                                    <p className={`info-value ${priceChanged ? 'price-changed' : ''}`}>
+                                        ₹{product?.currentPrice || 'N/A'}
+                                    </p>
+                                </div>
                             </div>
-                            {error && (
-                                <div className="alert alert-danger" role="alert">
-                                    {error}
+                            
+                            <div className="product-meta">
+                                <div className="meta-item">
+                                    <span className="meta-label">Highest Bidder:</span>
+                                    <span>{product?.highestBidder || 'No bids yet'}</span>
                                 </div>
-                            )}
-                            {success && (
-                                <div className="alert alert-success" role="alert">
-                                    {success}
+                                <div className="meta-item">
+                                    <span className="meta-label">Start Time:</span>
+                                    <span>{product?.startTime ? new Date(product.startTime).toLocaleString() : 'N/A'}</span>
                                 </div>
-                            )}
-                            <button type="submit" className="btn btn-primary w-100">
-                                Place Bid
-                            </button>
-                        </form>
+                                <div className="meta-item">
+                                    <span className="meta-label">End Time:</span>
+                                    <span>{product?.endTime ? new Date(product.endTime).toLocaleString() : 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div className="bid-form-card mt-4">
+                                <form onSubmit={handlePlaceBid} className="space-y-4">
+                                    <div className="form-group">
+                                        <label htmlFor="bidAmount" className="form-label">Your Bid (₹)</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            id="bidAmount"
+                                            value={bidAmount}
+                                            onChange={(e) => setBidAmount(e.target.value)}
+                                            min={(product?.currentPrice || 0) + 1}
+                                            required
+                                        />
+                                    </div>
+                                    {error && <div className="alert alert-danger">{error}</div>}
+                                    {success && <div className="alert alert-success">{success}</div>}
+                                    <button type="submit" className="btn btn-primary w-100">Place Bid</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div className="mt-5">
-                    <h3>Other Live Auctions</h3>
+                    <h3 className="section-title">Other Live Auctions</h3>
                     {liveAuctions.length > 0 ? (
-                        <div className="row">
+                        <div className="auctions-grid">
                             {liveAuctions.map((auction) => {
-                                const auctionImageSources = auction.images && auction.images.length > 0 
+                                const auctionImageSources = auction.images?.length > 0 
                                     ? auction.images 
                                     : auction.image 
                                     ? [auction.image] 
                                     : [];
                                 return (
-                                    <div key={auction.id} className="col-md-4 mb-4">
-                                        <div className="card h-100">
+                                    <div key={auction.id} className="card">
+                                        <div className="card-img-container">
                                             <img
-                                                src={
-                                                    auctionImageSources.length > 0
-                                                        ? auctionImageSources[0]
-                                                        : 'https://via.placeholder.com/300'
-                                                }
+                                                src={auctionImageSources.length > 0 ? auctionImageSources[0] : 'https://via.placeholder.com/300'}
                                                 className="card-img-top"
                                                 alt={auction.productName}
-                                                style={{ height: '200px', objectFit: 'cover' }}
-                                                onError={(e) => {
-                                                    console.error('Live auction image failed to load:', auctionImageSources.length > 0 ? auctionImageSources[0] : 'No image');
-                                                    e.target.src = 'https://via.placeholder.com/300';
-                                                }}
+                                                onClick={() => handleImageClick(auctionImageSources[0])}
+                                                onError={(e) => (e.target.src = 'https://via.placeholder.com/300')}
                                             />
-                                            <div className="card-body">
-                                                <h5 className="card-title">{auction.productName}</h5>
-                                                <p className="card-text">
-                                                    <strong>Current Bid:</strong> ₹{auction.currentPrice}
-                                                </p>
-                                                <p className="card-text">
-                                                    <strong>Ends:</strong> {new Date(auction.endTime).toLocaleString()}
-                                                </p>
-                                                <Link
-                                                    to={`/place-bid/${auction.id}`}
-                                                    className="btn btn-primary w-100"
-                                                >
-                                                    Place Bid
-                                                </Link>
+                                        </div>
+                                        <div className="card-body">
+                                            <h5 className="card-title">{auction.productName}</h5>
+                                            <div className="meta-item mb-2">
+                                                <span className="meta-label">Current Bid:</span>
+                                                <span className="font-bold">₹{auction.currentPrice}</span>
                                             </div>
+                                            <div className="meta-item mb-3">
+                                                <span className="meta-label">Ends:</span>
+                                                <span className="text-sm">{new Date(auction.endTime).toLocaleString()}</span>
+                                            </div>
+                                            <Link to={`/place-bid/${auction.id}`} className="btn btn-primary w-100">
+                                                Place Bid
+                                            </Link>
                                         </div>
                                     </div>
                                 );
@@ -290,6 +291,13 @@ const PlaceBid = () => {
                     )}
                 </div>
             </div>
+
+            {showModal && (
+                <div className="image-modal active" onClick={closeModal}>
+                    <button className="close-btn" onClick={closeModal}>×</button>
+                    <img src={selectedImage || "/placeholder.svg"} alt="Full view" />
+                </div>
+            )}
         </div>
     );
 };

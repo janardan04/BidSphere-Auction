@@ -1,4 +1,3 @@
-// src/pages/AddProduct.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, set } from 'firebase/database';
@@ -17,6 +16,7 @@ const AddProduct = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [previewImages, setPreviewImages] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,10 +39,15 @@ const AddProduct = () => {
             setError('You can upload a maximum of 5 images.');
             return;
         }
+        
         setFormData((prev) => ({
             ...prev,
             images: files,
         }));
+        
+        // Create preview URLs for the images
+        const previews = files.map(file => URL.createObjectURL(file));
+        setPreviewImages(previews);
     };
 
     const handleSubmit = async (e) => {
@@ -103,6 +108,7 @@ const AddProduct = () => {
                 images: imageBase64Strings, // Store base64 strings in the images array
                 isActive: false,
                 paymentStatus: 'pending',
+                timestamp: Date.now(),
             });
 
             setSuccess('Product added successfully!');
@@ -114,6 +120,7 @@ const AddProduct = () => {
                 endTime: '',
                 images: [],
             });
+            setPreviewImages([]);
             setTimeout(() => navigate('/seller-dashboard'), 1500);
         } catch (err) {
             console.error('Error adding product:', err);
@@ -124,119 +131,129 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="add-product-page" style={{ paddingTop: '80px' }}>
-            <div className="container">
-                <h2 className="text-center mb-4">Add New Product</h2>
-                {error && (
-                    <div className="alert alert-danger" role="alert">
-                        {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="alert alert-success" role="alert">
-                        {success}
-                    </div>
-                )}
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label htmlFor="productName" className="form-label">Product Name</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="productName"
-                            name="productName"
-                            value={formData.productName}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="description" className="form-label">Description</label>
-                        <textarea
-                            className="form-control"
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            required
-                        ></textarea>
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="startingPrice" className="form-label">Starting Price (₹)</label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            id="startingPrice"
-                            name="startingPrice"
-                            value={formData.startingPrice}
-                            onChange={handleChange}
-                            min="1"
-                            required
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="startTime" className="form-label">Start Time</label>
-                        <input
-                            type="datetime-local"
-                            className="form-control"
-                            id="startTime"
-                            name="startTime"
-                            value={formData.startTime}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="endTime" className="form-label">End Time</label>
-                        <input
-                            type="datetime-local"
-                            className="form-control"
-                            id="endTime"
-                            name="endTime"
-                            value={formData.endTime}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="images" className="form-label">Product Images (up to 5)</label>
-                        <input
-                            type="file"
-                            className="form-control"
-                            id="images"
-                            name="images"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageChange}
-                            required
-                        />
-                        {formData.images.length > 0 && (
-                            <div className="mt-2">
-                                <p>Selected images: {formData.images.length}</p>
-                                <div className="d-flex flex-wrap gap-2">
-                                    {formData.images.map((image, index) => (
-                                        <img
-                                            key={index}
-                                            src={URL.createObjectURL(image)}
-                                            alt={`Preview ${index + 1}`}
-                                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                                        />
+        <div className="auction-page">
+            <div className="auction-container">
+                <div className="auction-header">
+                    <h2>Add New Auction</h2>
+                </div>
+                <div className="auction-form">
+                    {error && (
+                        <div className="alert-box error">
+                            <i className="bi bi-exclamation-triangle"></i> {error}
+                        </div>
+                    )}
+                    {success && (
+                        <div className="alert-box success">
+                            <i className="bi bi-check-circle"></i> {success}
+                        </div>
+                    )}
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="productName">Product Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="productName"
+                                name="productName"
+                                value={formData.productName}
+                                onChange={handleChange}
+                                placeholder="Enter product name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="description">Description</label>
+                            <textarea
+                                className="form-control"
+                                id="description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                placeholder="Describe your product"
+                                rows="4"
+                                required
+                            ></textarea>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="startingPrice">Starting Price (₹)</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                id="startingPrice"
+                                name="startingPrice"
+                                value={formData.startingPrice}
+                                onChange={handleChange}
+                                min="1"
+                                placeholder="Enter starting price"
+                                required
+                            />
+                        </div>
+                        <div className="datetime-group">
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="startTime">Start Time</label>
+                                <input
+                                    type="datetime-local"
+                                    className="form-control"
+                                    id="startTime"
+                                    name="startTime"
+                                    value={formData.startTime}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="endTime">End Time</label>
+                                <input
+                                    type="datetime-local"
+                                    className="form-control"
+                                    id="endTime"
+                                    name="endTime"
+                                    value={formData.endTime}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="images">Product Images (up to 5)</label>
+                            <input
+                                type="file"
+                                className="form-control"
+                                id="images"
+                                name="images"
+                                accept="image/*"
+                                multiple
+                                onChange={handleImageChange}
+                                required
+                            />
+                            {previewImages.length > 0 && (
+                                <div className="image-preview-container">
+                                    {previewImages.map((url, index) => (
+                                        <div key={index} className="image-preview">
+                                            <img
+                                                src={url || "/placeholder.svg"}
+                                                alt={`Preview ${index + 1}`}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-                        {loading ? (
-                            <>
-                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                Adding Product...
-                            </>
-                        ) : (
-                            'Add Product'
-                        )}
-                    </button>
-                </form>
+                            )}
+                        </div>
+                        <button type="submit" className="submit-btn" disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <span className="spinner"></span>
+                                    Processing...
+                                </>
+                            ) : (
+                                'Add Auction'
+                            )}
+                        </button>
+                    </form>
+                    <a href="/seller-dashboard" className="back-link">
+                        <i className="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     );

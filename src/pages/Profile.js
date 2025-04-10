@@ -128,15 +128,15 @@ const Profile = () => {
         <p className="text-muted">View and manage your won auctions</p>
       </header>
 
-      <div className="card profile-bid-table">
-        <div className="card-header bg-primary text-white">
+      <div className="card profile-card">
+        <div className="card-header">
           <h3 className="mb-0">
             <i className="bi bi-trophy me-2"></i> Auctions Won
           </h3>
         </div>
         <div className="card-body p-0">
           <div className="table-responsive">
-            <table className="table table-striped table-hover mb-0">
+            <table className="table table-hover mb-0">
               <thead>
                 <tr>
                   <th>Product Name</th>
@@ -156,8 +156,8 @@ const Profile = () => {
                       <td>{auction.seller}</td>
                       <td>
                         <span
-                          className={`badge bg-${
-                            auction.paymentStatus === 'Completed' ? 'success' : 'warning'
+                          className={`badge ${
+                            auction.paymentStatus === 'Completed' ? 'bg-success' : 'bg-warning'
                           }`}
                         >
                           {auction.paymentStatus}

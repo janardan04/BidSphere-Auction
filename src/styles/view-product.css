@@ -1,335 +1,324 @@
 /* ================ BASE & VARIABLES ================ */
 :root {
-    --primary-gradient: linear-gradient(135deg, #2c3e50, #3498db);
-    --price-color: #2ecc71;
-    --success-bg: #27ae60;
-    --danger-bg: #e74c3c;
-    --info-bg: #2980b9;
-    --warning-bg: #f1c40f;
-    --secondary-bg: #7f8c8d;
+  --primary-color: #4a90e2;
+  --primary-light: #77adff;
+  --primary-dark: #2a70c2;
+  --primary-gradient: linear-gradient(135deg, #4a90e2, #77adff);
+  --price-color: #2ecc71;
+  --success-bg: #28a745;
+  --danger-bg: #dc3545;
+  --info-bg: #17a2b8;
+  --warning-bg: #ffc107;
+  --secondary-bg: #6c757d;
+  --bg-light: #f8f9fa;
+  --border-color: #dee2e6;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --transition: 0.3s ease;
 }
 
 body {
-    background: #f8f9fa;
-    min-height: 100vh;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    margin-top: 130px;
+  background: #f8f9fa;
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  margin-top: 130px;
 }
+
 .btn-sm {
-    padding: 0.25rem 2rem !important;
-    font-size: 01rem !important;
+  padding: 0.25rem 1rem !important;
+  font-size: 0.875rem !important;
 }
+
 .container {
-    max-width: 1200px !important;
-    margin: 0 auto !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
 }
+
 /* ================ FILTER BAR STYLES ================ */
 .filters-bar {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
 }
 
 .search-input {
-    flex: 1;
-    min-width: 200px;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all var(--transition);
 }
 
 .search-input:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
-    outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.2);
+  outline: none;
 }
 
 .filter-select {
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    min-width: 150px;
-    transition: all 0.3s ease;
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  min-width: 150px;
+  transition: all var(--transition);
 }
 
 .filter-select:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
-    outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.2);
+  outline: none;
 }
 
 /* ================ SMALL CARD STYLES ================ */
 .small-auction-card {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    border: none;
-    border-radius: 10px;
-    overflow: hidden;
-    background: white;
-    position: relative;
-    opacity: 0;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    animation: cardEntrance 0.6s ease-out forwards;
-    height: 100%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    max-width: 100%;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  position: relative;
+  opacity: 0;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: cardEntrance 0.6s ease-out forwards;
+  height: 100%;
+  box-shadow: var(--box-shadow);
+  max-width: 100%;
 }
 
 .card-img-container {
-    height: 150px;
-    overflow: hidden;
-    position: relative;
+  height: 150px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f0f0; /* Fallback background */
 }
 
 .card-img-top {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
 }
 
 .small-auction-card:hover .card-img-top {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .compact-card-body {
-    padding: 12px;
+  padding: 12px;
 }
 
 .product-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-description {
-    font-size: 0.8rem;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    margin-bottom: 8px;
-    color: #666;
-    height: 32px;
+  font-size: 0.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 8px;
+  color: #666;
+  height: 32px;
 }
 
-/* ================ ORIGINAL CARD STYLES & ANIMATIONS ================ */
-.auction-card {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    background: white;
-    position: relative;
-    opacity: 0;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    animation: cardEntrance 0.6s ease-out forwards;
+/* ================ ANIMATIONS ================ */
+.small-auction-card:nth-child(1) {
+  animation-delay: 0.05s;
 }
-
-.auction-card:nth-child(1) { animation-delay: 0.1s; }
-.auction-card:nth-child(2) { animation-delay: 0.2s; }
-.auction-card:nth-child(3) { animation-delay: 0.3s; }
-
-.small-auction-card:nth-child(1) { animation-delay: 0.05s; }
-.small-auction-card:nth-child(2) { animation-delay: 0.1s; }
-.small-auction-card:nth-child(3) { animation-delay: 0.15s; }
-.small-auction-card:nth-child(4) { animation-delay: 0.2s; }
+.small-auction-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.small-auction-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.small-auction-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
 
 @keyframes cardEntrance {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.card-header {
-    background: var(--primary-gradient);
-    border-radius: 0 !important;
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
 /* ================ PRICE & BADGE STYLES ================ */
 .price-display {
-    font-weight: 700;
-    color: var(--price-color) !important;
-    text-shadow: 0 1px 2px rgba(46, 204, 113, 0.2);
-    font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--price-color) !important;
+  text-shadow: 0 1px 2px rgba(46, 204, 113, 0.2);
+  font-size: 0.9rem;
+  display: inline-block;
 }
 
-.price-change {
-    animation: pricePulse 1s cubic-bezier(0.4, 0, 0.6, 1);
+.price-changed {
+  animation: youtubePrice 0.8s ease-out;
 }
 
-@keyframes pricePulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.15); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
+@keyframes youtubePrice {
+  0% {
+      transform: scale(1);
+      opacity: 1;
+  }
+  50% {
+      transform: scale(1.2) translateY(-5px);
+      opacity: 0.7;
+  }
+  100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+  }
 }
 
 .badge {
-    font-weight: 500;
-    padding: 5px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
+  font-weight: 500;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
 }
 
-.bg-secondary { background: var(--secondary-bg) !important; }
-.bg-success { background: var(--success-bg) !important; }
-.bg-danger { background: var(--danger-bg) !important; }
-.bg-info { background: var(--info-bg) !important; }
-.bg-warning { background: var(--warning-bg) !important; }
+.bg-secondary {
+  background: var(--secondary-bg) !important;
+}
+.bg-success {
+  background: var(--success-bg) !important;
+}
+.bg-danger {
+  background: var(--danger-bg) !important;
+}
+.bg-info {
+  background: var(--info-bg) !important;
+}
+.bg-warning {
+  background: var(--warning-bg) !important;
+}
 
 /* ================ BUTTON STYLES ================ */
-.btn-common {
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    font-weight: 600;
-    position: relative;
-    border: none;
-}
-
 .bid-button {
-    background: var(--primary-gradient);
-    padding: 5px 12px;
-    overflow: hidden;
-    color: white;
-    font-size: 0.75rem;
+  background: var(--primary-gradient);
+  padding: 5px 12px;
+  overflow: hidden;
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  border: none;
+  transition: all var(--transition);
 }
 
-.bid-button.loading::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255,255,255,0.8);
-    border-radius: inherit;
+.bid-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
 }
 
 .ended-button {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    padding: 5px 12px;
-    color: white;
-    font-size: 0.75rem;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  padding: 5px 12px;
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  border: none;
+  transition: all var(--transition);
 }
 
-.btn-success {
-    background: linear-gradient(135deg, #27ae60, #219a52);
-    padding: 15px 30px;
-    box-shadow: 0 6px 15px rgba(39, 174, 96, 0.3);
+.ended-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
 }
 
 /* ================ FORM ELEMENTS ================ */
 .bid-input {
-    width: 120px;
-    border: 2px solid #3498db;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+  width: 120px;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 500;
+  transition: all var(--transition);
 }
 
 .bid-input:focus {
-    border-color: #2980b9;
-    box-shadow: 0 0 12px rgba(52, 152, 219, 0.2);
-}
-
-/* ================ FLOATING ACTION ================ */
-.fixed-bottom {
-    position: fixed;
-    right: 2rem;
-    bottom: 2rem;
-    left: auto;
-    z-index: 1030;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
-    border-radius: 50px;
-    padding: 12px 35px;
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 12px rgba(74, 144, 226, 0.2);
 }
 
 /* ================ INTERACTION STATES ================ */
-.bid-button:not(:disabled):hover,
-.btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
-}
-
-.bid-button:focus,
-.auction-card:focus-within {
-    outline: 2px solid rgba(52, 152, 219, 0.5);
-    outline-offset: 2px;
-}
-
 @media (hover: hover) {
-    .small-auction-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    }
+  .small-auction-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* ================ RESPONSIVE DESIGN ================ */
 @media (max-width: 992px) {
-    .row-cols-lg-4 > * {
-        flex: 0 0 auto;
-        width: 33.33333%;
-    }
+  .row-cols-lg-4 > * {
+      flex: 0 0 auto;
+      width: 33.33333%;
+  }
 }
 
 @media (max-width: 768px) {
-    body { margin-top: 80px; }
-    
-    .row-cols-md-3 > * {
-        flex: 0 0 auto;
-        width: 50%;
-    }
-    
-    .bid-input { width: 100%; }
-    
-    .fixed-bottom {
-        right: 1rem;
-        bottom: 1rem;
-        padding: 10px 20px;
-    }
-    
-    .btn-success, .bid-button, .ended-button {
-        padding: 5px 10px;
-        font-size: 0.75rem;
-    }
-    
-    .filters-bar {
-        flex-direction: column;
-        padding: 10px;
-    }
-    
-    .search-input, .filter-select {
-        width: 100%;
-    }
-    
-    .card-img-container {
-        height: 120px;
-    }
+  body {
+      margin-top: 80px;
+  }
+
+  .row-cols-md-3 > * {
+      flex: 0 0 auto;
+      width: 50%;
+  }
+
+  .bid-input {
+      width: 100%;
+  }
+
+  .filters-bar {
+      flex-direction: column;
+      padding: 10px;
+  }
+
+  .search-input,
+  .filter-select {
+      width: 100%;
+  }
+
+  .card-img-container {
+      height: 120px;
+  }
 }
 
 @media (max-width: 576px) {
-    .row-cols-2 > * {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-    
-    .card-img-container {
-        height: 180px;
-    }
-    
-    .product-description {
-        height: auto;
-        -webkit-line-clamp: 3;
-    }
+  .row-cols-2 > * {
+      flex: 0 0 auto;
+      width: 100%;
+  }
+
+  .card-img-container {
+      height: 180px;
+  }
+
+  .product-description {
+      height: auto;
+      -webkit-line-clamp: 3;
+  }
 }

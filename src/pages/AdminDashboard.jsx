@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect, useState, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { ref, get, set, remove } from "firebase/database"
@@ -29,14 +28,10 @@ import {
   PlusCircle,
   Trash,
   Pencil,
-  ThreeDotsVertical,
   BoxArrowRight,
   GearFill,
   ArrowClockwise,
   ExclamationTriangle,
-  GraphUp,
-  Bell,
-  Calendar,
   Grid,
   List,
 } from "react-bootstrap-icons"
@@ -58,12 +53,10 @@ const AdminDashboard = () => {
     activeAuctions: 0,
     pendingPayments: 0,
   })
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [viewMode, setViewMode] = useState("table")
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Enhanced authentication check
   useEffect(() => {
     const { state } = location
     if (!state || !state.isAuthenticated || state.email !== "janardhanborse2003@gmail.com") {
@@ -73,25 +66,21 @@ const AdminDashboard = () => {
     }
   }, [location, navigate])
 
-  // Fetch all data
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      // Fetch Users
       const usersRef = ref(database, "users")
       const usersSnapshot = await get(usersRef)
       const usersData = usersSnapshot.val() || {}
       const formattedUsers = Object.entries(usersData).map(([id, data]) => ({ id, ...data }))
       setUsers(formattedUsers)
 
-      // Fetch Sellers
       const sellersRef = ref(database, "sellers")
       const sellersSnapshot = await get(sellersRef)
       const sellersData = sellersSnapshot.val() || {}
       const formattedSellers = Object.entries(sellersData).map(([id, data]) => ({ id, ...data }))
       setSellers(formattedSellers)
 
-      // Fetch Auctions
       const auctionsRef = ref(database, "auctions")
       const auctionsSnapshot = await get(auctionsRef)
       const auctionsData = auctionsSnapshot.val() || {}
@@ -101,12 +90,11 @@ const AdminDashboard = () => {
         endTime: new Date(data.endTime).toLocaleString(),
         formattedPrice: new Intl.NumberFormat("en-US", {
           style: "currency",
-          currency: "USD",
+          currency: "INR",
         }).format(data.currentPrice),
       }))
       setAuctions(formattedAuctions)
 
-      // Set stats
       setStats({
         totalUsers: formattedUsers.length,
         totalSellers: formattedSellers.length,
@@ -127,7 +115,7 @@ const AdminDashboard = () => {
 
   const handleUpdate = async (type, id, updates) => {
     try {
-      const path = type === "users" ? `users/${id}` : type === "sellers" ? `sellers/${id}` : `auctions/${id}`
+       const path = type === "users" ? `users/${id}` : type === "sellers" ? `sellers/${id}` : `auctions/${id}`
       const itemRef = ref(database, path)
 
       let currentItem
@@ -244,7 +232,7 @@ const AdminDashboard = () => {
     setShowModal({ type, show: true, mode: "add", itemId: null })
     setNewItem(
       type === "users"
-        ? { email: "", displayName: "" }
+        ? { email: "", name: "" }
         : type === "sellers"
           ? { email: "", businessName: "" }
           : { productName: "", seller: "", currentPrice: "", endTime: "", paymentStatus: "Pending", isActive: false },
@@ -330,7 +318,7 @@ const AdminDashboard = () => {
 
     if (dataType === "users") {
       return users.filter(
-        (user) => user.email?.toLowerCase().includes(term) || user.displayName?.toLowerCase().includes(term),
+        (user) => user.email?.toLowerCase().includes(term) || user.name?.toLowerCase().includes(term),
       )
     } else if (dataType === "sellers") {
       return sellers.filter(
@@ -346,10 +334,6 @@ const AdminDashboard = () => {
     }
   }
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed)
-  }
-
   if (error && !location.state?.isAuthenticated) {
     return (
       <Container className="py-5">
@@ -359,77 +343,43 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className={`admin-dashboard ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>{sidebarCollapsed ? "BP" : "BidSphere Admin"}</h2>
-          <Button variant="link" className="sidebar-toggle" onClick={toggleSidebar}>
-            <ThreeDotsVertical />
-          </Button>
-        </div>
-        <Nav className="flex-column sidebar-nav">
-          <Nav.Link className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>
-            <PeopleFill className="nav-icon" />
-            <span className="nav-text">Users</span>
-          </Nav.Link>
-          <Nav.Link className={activeTab === "sellers" ? "active" : ""} onClick={() => setActiveTab("sellers")}>
-            <Shop className="nav-icon" />
-            <span className="nav-text">Sellers</span>
-          </Nav.Link>
-          <Nav.Link className={activeTab === "auctions" ? "active" : ""} onClick={() => setActiveTab("auctions")}>
-            <TagFill className="nav-icon" />
-            <span className="nav-text">Auctions</span>
-          </Nav.Link>
-          <Nav.Link className="nav-link-divider">
-            <hr />
-          </Nav.Link>
-          <Nav.Link>
-            <GraphUp className="nav-icon" />
-            <span className="nav-text">Analytics</span>
-          </Nav.Link>
-          <Nav.Link>
-            <Bell className="nav-icon" />
-            <span className="nav-text">Notifications</span>
-          </Nav.Link>
-          <Nav.Link>
-            <Calendar className="nav-icon" />
-            <span className="nav-text">Calendar</span>
-          </Nav.Link>
-        </Nav>
-        <div className="sidebar-footer">
-          <Button variant="outline-light" onClick={handleLogout} className="logout-btn">
-            <BoxArrowRight className="nav-icon" />
-            <span className="nav-text">Logout</span>
-          </Button>
-        </div>
-      </div>
-
+    <div className="admin-dashboard">
       <div className="main-content">
         <div className="top-bar">
-          <div className="search-container">
-            <div className="search-box">
-              <Search className="search-icon" />
-              <Form.Control
-                type="text"
-                placeholder={`Search ${activeTab}...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
+          <div className="nav-search-container">
+            <Nav className="me-3">
+              <Nav.Link className={activeTab === "users" ? "active" : ""} onClick={() => setActiveTab("users")}>
+                <PeopleFill className="nav-icon" /> Users
+              </Nav.Link>
+              <Nav.Link className={activeTab === "sellers" ? "active" : ""} onClick={() => setActiveTab("sellers")}>
+                <Shop className="nav-icon" /> Sellers
+              </Nav.Link>
+              <Nav.Link className={activeTab === "auctions" ? "active" : ""} onClick={() => setActiveTab("auctions")}>
+                <TagFill className="nav-icon" /> Auctions
+              </Nav.Link>
+            </Nav>
+            <div className="search-container">
+              <div className="search-box">
+                <Search className="search-icon" />
+                <Form.Control
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
             </div>
           </div>
 
           <div className="view-toggle">
             <Button
               variant={viewMode === "table" ? "primary" : "outline-primary"}
-              className="view-toggle-btn"
               onClick={() => setViewMode("table")}
             >
               <List />
             </Button>
             <Button
               variant={viewMode === "grid" ? "primary" : "outline-primary"}
-              className="view-toggle-btn"
               onClick={() => setViewMode("grid")}
             >
               <Grid />
@@ -440,18 +390,12 @@ const AdminDashboard = () => {
             <span className="admin-name">Admin</span>
             <Dropdown align="end">
               <Dropdown.Toggle variant="link" id="dropdown-basic" className="avatar-dropdown">
-                <div className="avatar">A</div>
+                <div className="avatar">Jay</div>
               </Dropdown.Toggle>
-
               <Dropdown.Menu className="dropdown-menu-animated">
-                <Dropdown.Item>
-                  <GearFill className="dropdown-icon" />
-                  Settings
-                </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item onClick={handleLogout}>
-                  <BoxArrowRight className="dropdown-icon" />
-                  Logout
+                  <BoxArrowRight className="dropdown-icon" /> Logout
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -466,7 +410,7 @@ const AdminDashboard = () => {
 
         <div className="dashboard-content">
           <Row className="stats-row">
-            <Col lg={3} md={6} sm={6} className="stats-col">
+            <Col lg={3} md={6} sm={6}>
               <Card className="stats-card users-card">
                 <Card.Body>
                   <div className="stats-icon users-icon">
@@ -479,7 +423,7 @@ const AdminDashboard = () => {
                 </Card.Body>
               </Card>
             </Col>
-            <Col lg={3} md={6} sm={6} className="stats-col">
+            <Col lg={3} md={6} sm={6}>
               <Card className="stats-card sellers-card">
                 <Card.Body>
                   <div className="stats-icon sellers-icon">
@@ -492,7 +436,7 @@ const AdminDashboard = () => {
                 </Card.Body>
               </Card>
             </Col>
-            <Col lg={3} md={6} sm={6} className="stats-col">
+            <Col lg={3} md={6} sm={6}>
               <Card className="stats-card auctions-card">
                 <Card.Body>
                   <div className="stats-icon auctions-icon">
@@ -505,7 +449,7 @@ const AdminDashboard = () => {
                 </Card.Body>
               </Card>
             </Col>
-            <Col lg={3} md={6} sm={6} className="stats-col">
+            <Col lg={3} md={6} sm={6}>
               <Card className="stats-card pending-card">
                 <Card.Body>
                   <div className="stats-icon pending-icon">
@@ -524,17 +468,14 @@ const AdminDashboard = () => {
             <Card.Header className="data-card-header">
               <div className="d-flex justify-content-between align-items-center">
                 <h3>
-                  {activeTab === "users" && "User Management"}
-                  {activeTab === "sellers" && "Seller Management"}
-                  {activeTab === "auctions" && "Auction Management"}
+                  {activeTab === "users" ? "User Management" : activeTab === "sellers" ? "Seller Management" : "Auction Management"}
                 </h3>
                 <div className="header-actions">
-                  <Button variant="outline-primary" className="refresh-btn" onClick={fetchData} disabled={loading}>
+                  <Button variant="outline-primary" onClick={fetchData} disabled={loading}>
                     <ArrowClockwise className={loading ? "spin" : ""} />
                   </Button>
-                  <Button variant="primary" className="add-btn" onClick={() => handleAdd(activeTab)}>
-                    <PlusCircle className="button-icon" />
-                    <span>Add New</span>
+                  <Button variant="primary" onClick={() => handleAdd(activeTab)}>
+                    <PlusCircle className="button-icon" /> <span>Add New</span>
                   </Button>
                 </div>
               </div>
@@ -543,7 +484,7 @@ const AdminDashboard = () => {
             <Card.Body className="data-table-container">
               {loading ? (
                 <div className="text-center py-5 loading-container">
-                  <Spinner animation="border" role="status" variant="primary" className="custom-spinner" />
+                  <Spinner animation="border" variant="primary" className="custom-spinner" />
                   <p className="mt-2">Loading data...</p>
                 </div>
               ) : (
@@ -566,14 +507,13 @@ const AdminDashboard = () => {
                                 <tr key={u.id} className="table-row-animated">
                                   <td className="id-cell">{u.id}</td>
                                   <td>{u.email}</td>
-                                  <td>{u.displayName || "N/A"}</td>
+                                  <td>{u.name}</td>
                                   <td>
                                     <div className="action-buttons">
                                       <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="edit-btn"
                                           onClick={() => handleEditItem("users", u.id)}
                                         >
                                           <Pencil />
@@ -583,7 +523,6 @@ const AdminDashboard = () => {
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="delete-btn"
                                           onClick={() => handleDelete("users", u.id)}
                                         >
                                           <Trash />
@@ -603,7 +542,6 @@ const AdminDashboard = () => {
                           </tbody>
                         </Table>
                       )}
-
                       {activeTab === "sellers" && (
                         <Table responsive className="custom-table">
                           <thead>
@@ -620,14 +558,13 @@ const AdminDashboard = () => {
                                 <tr key={s.id} className="table-row-animated">
                                   <td className="id-cell">{s.id}</td>
                                   <td>{s.email}</td>
-                                  <td>{s.businessName || "N/A"}</td>
+                                  <td>{s.businessName}</td>
                                   <td>
                                     <div className="action-buttons">
                                       <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="edit-btn"
                                           onClick={() => handleEditItem("sellers", s.id)}
                                         >
                                           <Pencil />
@@ -637,7 +574,6 @@ const AdminDashboard = () => {
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="delete-btn"
                                           onClick={() => handleDelete("sellers", s.id)}
                                         >
                                           <Trash />
@@ -657,7 +593,6 @@ const AdminDashboard = () => {
                           </tbody>
                         </Table>
                       )}
-
                       {activeTab === "auctions" && (
                         <Table responsive className="custom-table">
                           <thead>
@@ -682,7 +617,7 @@ const AdminDashboard = () => {
                                   <td>{a.formattedPrice}</td>
                                   <td>{a.endTime}</td>
                                   <td>
-                                    <Badge bg={a.isActive ? "success" : "danger"} className="status-badge">
+                                    <Badge bg={a.isActive ? "success" : "danger"}>
                                       {a.isActive ? "Active" : "Inactive"}
                                     </Badge>
                                   </td>
@@ -695,7 +630,6 @@ const AdminDashboard = () => {
                                             ? "warning"
                                             : "danger"
                                       }
-                                      className="status-badge"
                                     >
                                       {a.paymentStatus}
                                     </Badge>
@@ -706,7 +640,6 @@ const AdminDashboard = () => {
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="edit-btn"
                                           onClick={() => handleEditItem("auctions", a.id)}
                                         >
                                           <Pencil />
@@ -716,7 +649,6 @@ const AdminDashboard = () => {
                                         <Button
                                           variant="light"
                                           size="sm"
-                                          className="delete-btn"
                                           onClick={() => handleDelete("auctions", a.id)}
                                         >
                                           <Trash />
@@ -740,130 +672,90 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="grid-view">
                       <Row>
-                        {activeTab === "users" &&
-                          filteredData("users").map((user) => (
-                            <Col lg={4} md={6} sm={12} key={user.id} className="grid-item-col">
-                              <Card className="grid-item">
-                                <Card.Body>
-                                  <div className="grid-item-header">
-                                    <div className="avatar">{user.displayName ? user.displayName[0] : "U"}</div>
-                                    <div className="item-actions">
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="edit-btn"
-                                        onClick={() => handleEditItem("users", user.id)}
-                                      >
-                                        <Pencil />
-                                      </Button>
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="delete-btn"
-                                        onClick={() => handleDelete("users", user.id)}
-                                      >
-                                        <Trash />
-                                      </Button>
-                                    </div>
+                        {activeTab === "users" && filteredData("users").map((user) => (
+                          <Col lg={4} md={6} sm={12} key={user.id} className="grid-item-col">
+                            <Card className="grid-item">
+                              <Card.Body>
+                                <div className="grid-item-header">
+                                  <div className="avatar">{user.name ? user.name[0] : "U"}</div>
+                                  <div className="item-actions">
+                                    <Button variant="light" size="sm" onClick={() => handleEditItem("users", user.id)}>
+                                      <Pencil />
+                                    </Button>
+                                    <Button variant="light" size="sm" onClick={() => handleDelete("users", user.id)}>
+                                      <Trash />
+                                    </Button>
                                   </div>
-                                  <div className="grid-item-content">
-                                    <h4>{user.displayName || "No Name"}</h4>
-                                    <p>{user.email}</p>
-                                    <p className="text-muted">ID: {user.id}</p>
+                                </div>
+                                <div className="grid-item-content">
+                                  <h4>{user.name}</h4>
+                                  <p>{user.email}</p>
+                                  <p className="text-muted">ID: {user.id}</p>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))}
+                        {activeTab === "sellers" && filteredData("sellers").map((seller) => (
+                          <Col lg={4} md={6} sm={12} key={seller.id} className="grid-item-col">
+                            <Card className="grid-item">
+                              <Card.Body>
+                                <div className="grid-item-header">
+                                  <div className="avatar seller-avatar">{seller.businessName ? seller.businessName[0] : "S"}</div>
+                                  <div className="item-actions">
+                                    <Button variant="light" size="sm" onClick={() => handleEditItem("sellers", seller.id)}>
+                                      <Pencil />
+                                    </Button>
+                                    <Button variant="light" size="sm" onClick={() => handleDelete("sellers", seller.id)}>
+                                      <Trash />
+                                    </Button>
                                   </div>
-                                </Card.Body>
-                              </Card>
-                            </Col>
-                          ))}
-
-                        {activeTab === "sellers" &&
-                          filteredData("sellers").map((seller) => (
-                            <Col lg={4} md={6} sm={12} key={seller.id} className="grid-item-col">
-                              <Card className="grid-item">
-                                <Card.Body>
-                                  <div className="grid-item-header">
-                                    <div className="avatar seller-avatar">
-                                      {seller.businessName ? seller.businessName[0] : "S"}
-                                    </div>
-                                    <div className="item-actions">
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="edit-btn"
-                                        onClick={() => handleEditItem("sellers", seller.id)}
-                                      >
-                                        <Pencil />
-                                      </Button>
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="delete-btn"
-                                        onClick={() => handleDelete("sellers", seller.id)}
-                                      >
-                                        <Trash />
-                                      </Button>
-                                    </div>
+                                </div>
+                                <div className="grid-item-content">
+                                  <h4>{seller.businessName || "No Business Name"}</h4>
+                                  <p>{seller.email}</p>
+                                  <p className="text-muted">ID: {seller.id}</p>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))}
+                        {activeTab === "auctions" && filteredData("auctions").map((auction) => (
+                          <Col lg={4} md={6} sm={12} key={auction.id} className="grid-item-col">
+                            <Card className="grid-item">
+                              <Card.Body>
+                                <div className="grid-item-header">
+                                  <Badge bg={auction.isActive ? "success" : "danger"}>{auction.isActive ? "Active" : "Inactive"}</Badge>
+                                  <div className="item-actions">
+                                    <Button variant="light" size="sm" onClick={() => handleEditItem("auctions", auction.id)}>
+                                      <Pencil />
+                                    </Button>
+                                    <Button variant="light" size="sm" onClick={() => handleDelete("auctions", auction.id)}>
+                                      <Trash />
+                                    </Button>
                                   </div>
-                                  <div className="grid-item-content">
-                                    <h4>{seller.businessName || "No Business Name"}</h4>
-                                    <p>{seller.email}</p>
-                                    <p className="text-muted">ID: {seller.id}</p>
-                                  </div>
-                                </Card.Body>
-                              </Card>
-                            </Col>
-                          ))}
-
-                        {activeTab === "auctions" &&
-                          filteredData("auctions").map((auction) => (
-                            <Col lg={4} md={6} sm={12} key={auction.id} className="grid-item-col">
-                              <Card className="grid-item">
-                                <Card.Body>
-                                  <div className="grid-item-header">
-                                    <Badge bg={auction.isActive ? "success" : "danger"} className="status-badge">
-                                      {auction.isActive ? "Active" : "Inactive"}
-                                    </Badge>
-                                    <div className="item-actions">
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="edit-btn"
-                                        onClick={() => handleEditItem("auctions", auction.id)}
-                                      >
-                                        <Pencil />
-                                      </Button>
-                                      <Button
-                                        variant="light"
-                                        size="sm"
-                                        className="delete-btn"
-                                        onClick={() => handleDelete("auctions", auction.id)}
-                                      >
-                                        <Trash />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                  <div className="grid-item-content">
-                                    <h4>{auction.productName}</h4>
-                                    <p>Seller: {auction.seller}</p>
-                                    <p>Price: {auction.formattedPrice}</p>
-                                    <p>Ends: {auction.endTime}</p>
-                                    <Badge
-                                      bg={
-                                        auction.paymentStatus === "Paid"
-                                          ? "success"
-                                          : auction.paymentStatus === "Pending"
-                                            ? "warning"
-                                            : "danger"
-                                      }
-                                      className="payment-badge"
-                                    >
-                                      {auction.paymentStatus}
-                                    </Badge>
-                                  </div>
-                                </Card.Body>
-                              </Card>
-                            </Col>
-                          ))}
+                                </div>
+                                <div className="grid-item-content">
+                                  <h4>{auction.productName}</h4>
+                                  <p>Seller: {auction.seller}</p>
+                                  <p>Price: {auction.formattedPrice}</p>
+                                  <p>Ends: {auction.endTime}</p>
+                                  <Badge
+                                    bg={
+                                      auction.paymentStatus === "Paid"
+                                        ? "success"
+                                        : auction.paymentStatus === "Pending"
+                                          ? "warning"
+                                          : "danger"
+                                    }
+                                  >
+                                    {auction.paymentStatus}
+                                  </Badge>
+                                </div>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))}
                       </Row>
                     </div>
                   )}
@@ -874,7 +766,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Modal for Add/Edit Operations */}
       <Modal
         show={showModal.show}
         onHide={() => setShowModal({ type: "", show: false, mode: "add", itemId: null })}
@@ -882,9 +773,7 @@ const AdminDashboard = () => {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {showModal.mode === "add"
-              ? `Add New ${showModal.type.slice(0, -1)}`
-              : `Edit ${showModal.type.slice(0, -1)}`}
+            {showModal.mode === "add" ? `Add New ${showModal.type.slice(0, -1)}` : `Edit ${showModal.type.slice(0, -1)}`}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -903,13 +792,12 @@ const AdminDashboard = () => {
                 <Form.Label>Display Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={newItem.displayName || ""}
-                  onChange={(e) => setNewItem({ ...newItem, displayName: e.target.value })}
+                  value={newItem.name || ""}
+                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                 />
               </Form.Group>
             </Form>
           )}
-
           {showModal.type === "sellers" && (
             <Form>
               <Form.Group className="mb-3">
@@ -932,7 +820,6 @@ const AdminDashboard = () => {
               </Form.Group>
             </Form>
           )}
-
           {showModal.type === "auctions" && (
             <Form>
               <Form.Group className="mb-3">
@@ -1010,4 +897,3 @@ const AdminDashboard = () => {
 }
 
 export default AdminDashboard
-

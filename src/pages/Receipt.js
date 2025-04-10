@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
 import { database } from '../firebase/firebaseConfig';
-import { Button, Alert } from 'react-bootstrap';
+import '../styles/receipt.css';
 
 const Receipt = () => {
   const [auction, setAuction] = useState(null);
@@ -14,52 +14,6 @@ const Receipt = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const auctionId = queryParams.get('auctionId');
-
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: '600px',
-      margin: '0 auto',
-    },
-    card: {
-      padding: '2rem',
-      borderRadius: '10px',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-      backgroundColor: '#ffffff',
-    },
-    heading: {
-      marginBottom: '1.5rem',
-      fontSize: '1.8rem',
-      fontWeight: 'bold',
-      textAlign: 'center',
-      color: '#333',
-    },
-    paragraph: {
-      marginBottom: '0.8rem',
-      fontSize: '1rem',
-      color: '#555',
-    },
-    button: {
-      marginTop: '1.5rem',
-      display: 'block',
-      width: '100%',
-      padding: '0.8rem',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      backgroundColor: '#007bff',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      textAlign: 'center',
-    },
-    spinner: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-    },
-  };
 
   useEffect(() => {
     if (auctionId) {
@@ -77,6 +31,7 @@ const Receipt = () => {
               seller: data.seller,
               description: data.description,
               endTime: new Date(data.endTime).toLocaleString(),
+              images: data.images && data.images.length > 0 ? data.images[0] : null,
             });
 
             if (paymentsSnapshot.exists()) {
@@ -103,11 +58,18 @@ const Receipt = () => {
     }
   }, [auctionId]);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (loading) {
     return (
-      <div style={styles.spinner}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="receipt-page">
+        <div className="receipt-container">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading receipt...</p>
+          </div>
         </div>
       </div>
     );
@@ -115,41 +77,95 @@ const Receipt = () => {
 
   if (error && !auction) {
     return (
-      <div style={styles.container}>
-        <Alert variant="danger">{error}</Alert>
+      <div className="receipt-page">
+        <div className="receipt-container">
+          <div className="error-message">
+            <i className="bi bi-exclamation-triangle"></i>
+            <p>{error}</p>
+            <button className="back-button" onClick={() => navigate('/profile')}>
+              Back to Profile
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Payment Receipt</h2>
-      <div style={styles.card}>
-        <h4>Thank you for your purchase!</h4>
-        <p style={styles.paragraph}>
-          <strong>Product Name:</strong> {auction.productName}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Amount Paid:</strong> ₹{auction.currentPrice.toFixed(2)}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Seller Email:</strong> {auction.seller}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Auction ID:</strong> {auction.id}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Description:</strong> {auction.description}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Auction End Time:</strong> {auction.endTime}
-        </p>
-        <p style={styles.paragraph}>
-          <strong>Payment Status:</strong> {payment.paymentStatus}
-        </p>
-        <button style={styles.button} onClick={() => navigate('/profile')}>
-          Back to Profile
-        </button>
+    <div className="receipt-page">
+      <div className="receipt-container">
+        <div className="receipt-header">
+          <h2>Payment Receipt</h2>
+        </div>
+        
+        <div className="receipt-content">
+          <div className="receipt-stamp">PAID</div>
+          
+          <div className="receipt-title">
+            <i className="bi bi-check-circle-fill"></i>
+            <h3>Thank you for your purchase!</h3>
+          </div>
+          
+          <div className="product-summary">
+            <div className="product-image">
+              {auction.images ? (
+                <img src={auction.images || "/placeholder.svg"} alt={auction.productName} />
+              ) : (
+                <div className="no-image">
+                  <i className="bi bi-image"></i>
+                </div>
+              )}
+            </div>
+            <div className="product-details">
+              <h4>{auction.productName}</h4>
+              <div className="price-tag">₹{auction.currentPrice.toFixed(2)}</div>
+            </div>
+          </div>
+          
+          <div className="receipt-details">
+            <div className="detail-row">
+              <span className="detail-label">Seller:</span>
+              <span className="detail-value">{auction.seller}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Auction ID:</span>
+              <span className="detail-value">{auction.id}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Description:</span>
+              <span className="detail-value">{auction.description}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Auction End Time:</span>
+              <span className="detail-value">{auction.endTime}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Payment Method:</span>
+              <span className="detail-value">{payment.paymentMethod || 'Online Payment'}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Payment Date:</span>
+              <span className="detail-value">
+                {payment.paymentDate ? new Date(payment.paymentDate).toLocaleString() : 'N/A'}
+              </span>
+            </div>
+            <div className="detail-row payment-status">
+              <span className="detail-label">Payment Status:</span>
+              <span className={`status-badge ${payment.paymentStatus === 'Completed' ? 'completed' : 'pending'}`}>
+                {payment.paymentStatus}
+              </span>
+            </div>
+          </div>
+          
+          <div className="receipt-actions">
+            <button className="print-button" onClick={handlePrint}>
+              <i className="bi bi-printer"></i> Print Receipt
+            </button>
+            <button className="back-button" onClick={() => navigate('/profile')}>
+              <i className="bi bi-arrow-left"></i> Back to Profile
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
