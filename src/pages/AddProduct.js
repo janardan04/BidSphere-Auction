@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'; 
-import { useNavigate } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react'; // Import React and hooks for state and side effects
+import { useNavigate } from 'react-router-dom'; // Import navigation hook for redirecting
 import { ref, set } from 'firebase/database'; // Import Firebase database functions for saving data
 import { auth, database } from '../firebase/firebaseConfig'; // Import Firebase auth and database configuration
 import '../styles/add-product.css'; // Import CSS for styling the component
@@ -98,17 +98,10 @@ const AddProduct = () => {
             // Convert selected images to base64 strings for storage
             const imagePromises = images.map((image) => {
                 return new Promise((resolve, reject) => {
-<<<<<<< Updated upstream
                     const reader = new FileReader(); // Create FileReader to read image
                     reader.onload = () => resolve(reader.result); // Resolve with base64 string
                     reader.onerror = (error) => reject(error); // Reject if reading fails
                     reader.readAsDataURL(image); // Read image as data URL (base64)
-=======
-                    const reader = new FileReader();    
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = (error) => reject(error);
-                    reader.readAsDataURL(image);
->>>>>>> Stashed changes
                 });
             });
 

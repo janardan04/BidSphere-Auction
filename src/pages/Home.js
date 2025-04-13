@@ -1,121 +1,176 @@
-// src/pages/Home.js
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/index.css'; // Assuming you have this CSS file
+import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import '../styles/index.css';
 
 const Home = () => {
-    const navigate = useNavigate();
+  const heroTextRef = useRef(null);
 
-    useEffect(() => {
-        // Typing animation for hero-lead
-        const heroLead = document.querySelector('.hero-lead');
-        if (heroLead) {
-            const text = heroLead.textContent;
-            heroLead.textContent = '';
-            let i = 0;
-            const type = () => {
-                if (i < text.length) {
-                    heroLead.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, 50);
-                }
-            };
-            type();
+  useEffect(() => {
+    const heroLead = heroTextRef.current;
+    if (heroLead) {
+      const text = "Discover unique items & exciting auctions. Buy, sell, and bid with confidence on our trusted platform!";
+      heroLead.textContent = "";
+      let i = 0;
+      const type = () => {
+        if (i < text.length) {
+          heroLead.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, 50);
         }
-    }, []);
+      };
+      type();
+    }
+  }, []);
 
-    return (
-        <div>
-            {/* Floating shapes and particles */}
-            <div className="floating-shape shape1"></div>
-            <div className="floating-shape shape2"></div>
-            <div className="floating-shape shape3"></div>
-            <div className="floating-shape shape4"></div>
-            <div className="floating-shape shape5"></div>
-            <div className="particle" style={{ left: '10%', animationDelay: '0s' }}></div>
-            <div className="particle" style={{ left: '30%', animationDelay: '2s' }}></div>
-            <div className="particle" style={{ left: '50%', animationDelay: '4s' }}></div>
-            <div className="particle" style={{ left: '70%', animationDelay: '6s' }}></div>
-            <div className="particle" style={{ left: '90%', animationDelay: '8s' }}></div>
+  return (
+    <div className="home-container">
+      {/* Animated background elements */}
+      <div className="background-elements">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="floating-shape"
+            style={{
+              width: `${Math.random() * 200 + 50}px`,
+              height: `${Math.random() * 200 + 50}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 10 + 15}s`,
+              animationDelay: `${Math.random() * 5}s`,
+            }}
+          />
+        ))}
 
-            <div className="container main-container d-flex flex-column justify-content-center align-items-center min-vh-100">
-                <div className="hero-card text-center animate__animated ">
-                    <h1 className="hero-title">
-                        <i className="fas fa-gavel"></i> Welcome to BidSphere!
-                    </h1>
-                    <p className="hero-lead">
-                        Discover unique items & exciting auctions. Buy, sell, and bid with confidence on our trusted platform!
-                        <br />
-                        <small>
-                            Currently <span id="activeAuctions">0</span> active auctions!
-                        </small>
-                    </p>
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={`particle-${i}`}
+            className="particle"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 20 + 10}s`,
+              animationDelay: `${Math.random() * 5}s`,
+            }}
+          />
+        ))}
+      </div>
 
-                    <div className="cta-button-container">
-                        <button className="btn btn-sky-blue cta-button" onClick={() => navigate('/login')}>
-                            <i className="fas fa-sign-in-alt me-2"></i> Login
-                        </button>
-                        <button className="btn btn-sky-blue cta-button" onClick={() => navigate('/register')}>
-                            <i className="fas fa-user-plus me-2"></i> Register
-                        </button>
-                    </div>
+      <div className="content-wrapper">
+        {/* Hero Section */}
+        <div className="hero-section">
+          <div className="platform-badge">
+            <i className="fas fa-gavel"></i>
+            <span>Online Auction Platform</span>
+          </div>
 
-                    <div className="feature-section mt-5">
-                        <div className="row g-4">
-                            <div className="col-md-4">
-                                <div className="feature-item">
-                                    <i className="fas fa-shield-alt feature-icon"></i>
-                                    <h4>Secure Bidding</h4>
-                                    <p>Safe and encrypted transactions for peace of mind</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="feature-item">
-                                    <i className="fas fa-history feature-icon"></i>
-                                    <h4>Real-time Updates</h4>
-                                    <p>Instant bid notifications and auction alerts</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="feature-item">
-                                    <i className="fas fa-trophy feature-icon"></i>
-                                    <h4>Win Amazing Items</h4>
-                                    <p>Unique collectibles & rare finds at great prices</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          <h1 className="hero-title">Welcome to BidSphere!</h1>
 
-                    <div className="how-it-works-section mt-5">
-                        <h2 className="text-center mb-4">How It Works</h2>
-                        <div className="row g-4">
-                            <div className="col-md-4">
-                                <div className="step-item">
-                                    <i className="fas fa-user-plus step-icon"></i>
-                                    <h4>Register</h4>
-                                    <p>Create an account to start bidding or selling.</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="step-item">
-                                    <i className="fas fa-search step-icon"></i>
-                                    <h4>Find Items</h4>
-                                    <p>Browse or search for items you're interested in.</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="step-item">
-                                    <i className="fas fa-gavel step-icon"></i>
-                                    <h4>Bid or Sell</h4>
-                                    <p>Place bids on items or list your own for auction.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <p ref={heroTextRef} className="hero-text"></p>
+
+          <div className="cta-buttons">
+            <Link to="/login" className="btn btn-primary">
+              <i className="fas fa-sign-in-alt"></i>
+              Login
+            </Link>
+
+            <Link to="/register" className="btn btn-primary">
+              <i className="fas fa-user-plus"></i>
+              Register
+            </Link>
+
+            <Link to="/auctions" className="btn btn-primary">
+              <i className="fas fa-gavel"></i>
+              Auctions
+            </Link>
+          </div>
         </div>
-    );
+
+        {/* Features Section */}
+        <div className="features-section">
+          <h2 className="section-title">Why Choose BidSphere</h2>
+
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="fas fa-shield-alt"></i>
+              </div>
+              <h3 className="feature-title">Secure Bidding</h3>
+              <p className="feature-description">
+                Safe and encrypted transactions for peace of mind with advanced security protocols.
+              </p>
+            </div>
+
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="fas fa-clock"></i>
+              </div>
+              <h3 className="feature-title">Real-time Updates</h3>
+              <p className="feature-description">
+                Instant bid notifications and auction alerts so you never miss an opportunity.
+              </p>
+            </div>
+
+            <div className="feature-card">
+              <div className="feature-icon">
+                <i className="fas fa-trophy"></i>
+              </div>
+              <h3 className="feature-title">Win Amazing Items</h3>
+              <p className="feature-description">
+                Unique collectibles & rare finds at great prices from sellers worldwide.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* How It Works Section */}
+        <div className="how-it-works-section">
+          <h2 className="section-title">How It Works</h2>
+
+          <div className="steps-grid">
+            <div className="step-card">
+              {/* <div className="step-number">1</div> */}
+              <div className="step-icon">
+                <i className="fas fa-user-plus"></i>
+              </div>
+              <h3 className="step-title">Register</h3>
+              <p className="step-description">
+                Create an account to start bidding or selling on our platform.
+              </p>
+            </div>
+
+            <div className="step-card">
+              {/* <div className="step-number">2</div> */}
+              <div className="step-icon">
+                <i className="fas fa-search"></i>
+              </div>
+              <h3 className="step-title">Find Items</h3>
+              <p className="step-description">
+                Browse or search for items you're interested in from our vast collection.
+              </p>
+            </div>
+
+            <div className="step-card">
+              {/* <div className="step-number">3</div> */}
+              <div className="step-icon">
+                <i className="fas fa-gavel"></i>
+              </div>
+              <h3 className="step-title">Bid or Sell</h3>
+              <p className="step-description">
+                Place bids on items or list your own for auction and start earning.
+              </p>
+            </div>
+          </div>
+
+          <div className="final-cta">
+            <Link to="/register" className="btn btn-primary btn-large">
+              <i className="fas fa-user"></i>
+              Get Started Today
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Home;

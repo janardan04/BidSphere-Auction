@@ -14,6 +14,10 @@
     display: flex;
     flex-direction: column;
   }
+  .admin-login-container {
+    background-color: transparent;
+  }
+  
   
   main {
     flex: 1;

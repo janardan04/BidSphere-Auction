@@ -153,8 +153,8 @@ p {
 
 .card-img-container {
   position: relative;
-  height: 200px;
   width: 100%;
+  aspect-ratio: 4 / 3; /* Enforce 4:3 aspect ratio */
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -371,6 +371,7 @@ p {
   margin-right: -100%;
   backface-visibility: hidden;
   transition: transform 0.6s ease-in-out;
+  aspect-ratio: 4 / 3; /* Enforce 4:3 aspect ratio for carousel items */
 }
 
 .carousel-item.active {
@@ -381,8 +382,8 @@ p {
   cursor: pointer;
   object-fit: cover;
   object-position: center;
-  height: 400px;
   width: 100%;
+  height: 100%; /* Ensure image fills the container */
 }
 
 .carousel-control-prev,
@@ -515,7 +516,7 @@ p {
 /* Single Product Image */
 .product-image {
   width: 100%;
-  height: 400px;
+  aspect-ratio: 4 / 3; /* Enforce 4:3 aspect ratio */
   object-fit: cover;
   object-position: center;
   border-radius: var(--border-radius-xl);
@@ -538,11 +539,13 @@ p {
   }
 
   .carousel-item img {
-      height: 300px;
+      width: 100%;
+      height: 100%; /* Maintain aspect ratio */
   }
 
   .card-img-top {
-      height: 150px;
+      width: 100%;
+      height: 100%; /* Maintain aspect ratio */
   }
   
   .info-value {
@@ -550,7 +553,8 @@ p {
   }
   
   .product-image {
-      height: 300px;
+      width: 100%;
+      height: auto; /* Let height adjust to maintain aspect ratio */
   }
 }
 
