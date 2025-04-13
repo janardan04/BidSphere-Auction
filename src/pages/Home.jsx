@@ -1,30 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/index.css';
 
 const Home = () => {
-  const heroTextRef = useRef(null);
-
-  useEffect(() => {
-    const heroLead = heroTextRef.current;
-    if (heroLead) {
-      const text = "Discover unique items & exciting auctions. Buy, sell, and bid with confidence on our trusted platform!";
-      heroLead.textContent = "";
-      let i = 0;
-      const type = () => {
-        if (i < text.length) {
-          heroLead.textContent += text.charAt(i);
-          i++;
-          setTimeout(type, 50);
-        }
-      };
-      type();
-    }
-  }, []);
-
   return (
     <div className="home-container">
-      {/* Animated background elements */}
       <div className="background-elements">
         {[...Array(20)].map((_, i) => (
           <div
@@ -40,7 +20,6 @@ const Home = () => {
             }}
           />
         ))}
-
         {[...Array(15)].map((_, i) => (
           <div
             key={`particle-${i}`}
@@ -54,41 +33,33 @@ const Home = () => {
           />
         ))}
       </div>
-
       <div className="content-wrapper">
-        {/* Hero Section */}
         <div className="hero-section">
           <div className="platform-badge">
             <i className="fas fa-gavel"></i>
             <span>Online Auction Platform</span>
           </div>
-
           <h1 className="hero-title">Welcome to BidSphere!</h1>
-
-          <p ref={heroTextRef} className="hero-text"></p>
-
+          <p className="hero-text">
+            Discover unique items & exciting auctions. Buy, sell, and bid with confidence on our trusted platform!
+          </p>
           <div className="cta-buttons">
             <Link to="/login" className="btn btn-primary">
               <i className="fas fa-sign-in-alt"></i>
               Login
             </Link>
-
             <Link to="/register" className="btn btn-primary">
               <i className="fas fa-user-plus"></i>
               Register
             </Link>
-
             <Link to="/auctions" className="btn btn-primary">
               <i className="fas fa-gavel"></i>
               Auctions
             </Link>
           </div>
         </div>
-
-        {/* Features Section */}
         <div className="features-section">
           <h2 className="section-title">Why Choose BidSphere</h2>
-
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">
@@ -99,7 +70,6 @@ const Home = () => {
                 Safe and encrypted transactions for peace of mind with advanced security protocols.
               </p>
             </div>
-
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-clock"></i>
@@ -109,7 +79,6 @@ const Home = () => {
                 Instant bid notifications and auction alerts so you never miss an opportunity.
               </p>
             </div>
-
             <div className="feature-card">
               <div className="feature-icon">
                 <i className="fas fa-trophy"></i>
@@ -121,14 +90,10 @@ const Home = () => {
             </div>
           </div>
         </div>
-
-        {/* How It Works Section */}
         <div className="how-it-works-section">
           <h2 className="section-title">How It Works</h2>
-
           <div className="steps-grid">
             <div className="step-card">
-              {/* <div className="step-number">1</div> */}
               <div className="step-icon">
                 <i className="fas fa-user-plus"></i>
               </div>
@@ -137,9 +102,7 @@ const Home = () => {
                 Create an account to start bidding or selling on our platform.
               </p>
             </div>
-
             <div className="step-card">
-              {/* <div className="step-number">2</div> */}
               <div className="step-icon">
                 <i className="fas fa-search"></i>
               </div>
@@ -148,9 +111,7 @@ const Home = () => {
                 Browse or search for items you're interested in from our vast collection.
               </p>
             </div>
-
             <div className="step-card">
-              {/* <div className="step-number">3</div> */}
               <div className="step-icon">
                 <i className="fas fa-gavel"></i>
               </div>
@@ -160,7 +121,6 @@ const Home = () => {
               </p>
             </div>
           </div>
-
           <div className="final-cta">
             <Link to="/register" className="btn btn-primary btn-large">
               <i className="fas fa-user"></i>

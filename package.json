@@ -1,15 +1,24 @@
 {
+  "homepage": "https://janardan04.github.io/BidSphere-Auction",
   "name": "BidSphere-Auction",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^5.3.5",
     "cra-template": "1.2.0",
+    "firebase": "^11.6.0",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-bootstrap-icons": "^1.11.5",
     "react-dom": "^19.0.0",
+    "react-firebase-hooks": "^5.1.1",
+    "react-router-dom": "^7.5.0",
     "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
