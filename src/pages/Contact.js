@@ -3,7 +3,7 @@ import React from 'react';
 
 const Contact = () => {
     return (
-        <div className="container my-5">
+        <div className="container my-5"  >
             <h1 className="text-center mb-4">Contact Us</h1>
             <p className="lead text-center">
                 Have questions or need assistance with BidSphere? Feel free to reach out to us! Our team is here to help you with any inquiries about our online auction platform.
@@ -22,39 +22,41 @@ const Contact = () => {
                             <strong>Address:</strong> 123 Auction Lane, Bid City, BC 45678
                         </li>
                     </ul>
+
                     <h2 className="text-center text-primary">Our Team</h2>
-                    <div className="card mb-3">
-                        <div className="card-body">
-                            <h5 className="card-title">Janardan Borse</h5>
-                            <p className="card-text">
-                                <strong>Co-Founder</strong>
-                            </p>
-                            <p className="card-text">
-                                Email:{' '}
-                                <a href="mailto:janardhanborse2003@gmail.com">
-                                    janardhanborse2003@gmail.com
-                                </a>
-                            </p>
-                            <p className="card-text">Mobile: 7038544159</p>
+                    <div className="row">
+                        <div className="col-md-6 mb-3">
+                            <div className="card h-100">
+                                <div className="card-body">
+                                    <h5 className="card-title">Janardan Borse</h5>
+                                    <p className="card-text"><strong>Co-Founder</strong></p>
+                                    <p className="card-text">
+                                        Email:{' '}
+                                        <a href="mailto:janardhanborse2003@gmail.com">
+                                            janardhanborse2003@gmail.com
+                                        </a>
+                                    </p>
+                                    <p className="card-text">Mobile: 7038544159</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6 mb-3">
+                            <div className="card h-100">
+                                <div className="card-body">
+                                    <h5 className="card-title">Vivek Bhandare</h5>
+                                    <p className="card-text"><strong>Co-Founder</strong></p>
+                                    <p className="card-text">
+                                        Email:{' '}
+                                        <a href="mailto:vivek@bidsphere.com">
+                                            vivek@bidsphere.com
+                                        </a>
+                                    </p>
+                                    <p className="card-text">Mobile: [Contact Vivek for details]</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">Vivek Bhandare</h5>
-                            <p className="card-text">
-                                <strong>Co-Founder</strong>
-                            </p>
-                            <p className="card-text">
-                                Email:{' '}
-                                <a href="mailto:vivek@bidsphere.com">
-                                    vivek@bidsphere.com
-                                </a>
-                            </p>
-                            <p className="card-text">
-                                Mobile: [Contact Vivek for details]
-                            </p>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
