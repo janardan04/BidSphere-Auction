@@ -40,7 +40,7 @@ function App() {
           <Route path="/receipt" element={<Receipt />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="*" element={<Navigate to="/" replace />} /> {/* Redirect to Home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
       </div>
