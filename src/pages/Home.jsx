@@ -1,8 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../styles/index.css';
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <div className="home-container">
       <div className="background-elements">
@@ -44,18 +50,27 @@ const Home = () => {
             Discover unique items & exciting auctions. Buy, sell, and bid with confidence on our trusted platform!
           </p>
           <div className="cta-buttons">
-            <Link to="/login" className="btn btn-primary">
+            <button 
+              onClick={() => handleNavigation('/login')} 
+              className="btn btn-primary"
+            >
               <i className="fas fa-sign-in-alt"></i>
               Login
-            </Link>
-            <Link to="/register" className="btn btn-primary">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/register')} 
+              className="btn btn-primary"
+            >
               <i className="fas fa-user-plus"></i>
               Register
-            </Link>
-            <Link to="/auctions" className="btn btn-primary">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/auctions')} 
+              className="btn btn-primary"
+            >
               <i className="fas fa-gavel"></i>
               Auctions
-            </Link>
+            </button>
           </div>
         </div>
         <div className="features-section">
@@ -122,10 +137,13 @@ const Home = () => {
             </div>
           </div>
           <div className="final-cta">
-            <Link to="/register" className="btn btn-primary btn-large">
+            <button 
+              onClick={() => handleNavigation('/register')} 
+              className="btn btn-primary btn-large"
+            >
               <i className="fas fa-user"></i>
               Get Started Today
-            </Link>
+            </button>
           </div>
         </div>
       </div>

@@ -31,6 +31,19 @@
 .navbar-brand:hover {
     transform: scale(1.05);
     text-decoration: none;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1.08);
+    }
+    100% {
+        transform: scale(1.05);
+    }
 }
 
 /* Navigation links as buttons */
@@ -45,6 +58,27 @@
     border: none;
     cursor: pointer;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Menu item animation for desktop */
+@media (min-width: 992px) {
+    .menu-item:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background-color: #0d6efd;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+    
+    .menu-item:hover:before {
+        width: 80%;
+    }
 }
 
 .navbar-nav .nav-link:hover {
@@ -100,7 +134,6 @@
     animation: dropdown-anim 0.3s ease-out;
     backdrop-filter: blur(8px); /* Optional: Adds a glass effect */
 }
-
 
 @keyframes dropdown-anim {
     from {
@@ -160,6 +193,48 @@
         margin: 5px 0;
         width: 100%;
         text-align: left;
+        /* Mobile animation for nav items */
+        transition: all 0.3s ease;
+    }
+    
+    /* Staggered appearance for mobile menu items */
+    .navbar-collapse.show .nav-item:nth-child(1) .nav-link {
+        animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(2) .nav-link {
+        animation: slideIn 0.3s ease-out 0.05s forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(3) .nav-link {
+        animation: slideIn 0.3s ease-out 0.1s forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(4) .nav-link {
+        animation: slideIn 0.3s ease-out 0.15s forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(5) .nav-link {
+        animation: slideIn 0.3s ease-out 0.2s forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(6) .nav-link {
+        animation: slideIn 0.3s ease-out 0.25s forwards;
+    }
+    
+    .navbar-collapse.show .nav-item:nth-child(7) .nav-link {
+        animation: slideIn 0.3s ease-out 0.3s forwards;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
     
     .search-form {
@@ -175,6 +250,25 @@
     .login-dropdown .dropdown-toggle {
         width: 100%;
         text-align: center;
+    }
+    
+    .user-display {
+        margin: 10px 0;
+        padding: 5px 10px;
+        background: rgba(135, 206, 235, 0.2);
+        border-radius: 20px;
+        display: block;
+        text-align: center;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 }
 
@@ -196,11 +290,59 @@
     box-shadow: 0 0 0 0.25rem rgba(135, 206, 235, 0.5);
 }
 
+/* Add animation to toggler */
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+
 .logout-button {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .logout-button:hover {
     transform: scale(1.1); /* Slightly enlarge the button */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+    background-color: rgba(220, 53, 69, 0.2) !important; /* Slight red tint */
+    color: #dc3545 !important; /* Red text */
+}
+
+/* Animation for user display in desktop mode */
+@media (min-width: 992px) {
+    .user-display {
+        transition: all 0.3s ease;
+        padding: 5px 15px;
+        border-radius: 20px;
+        background: rgba(135, 206, 235, 0.1);
+    }
+    
+    .user-display:hover {
+        background: rgba(135, 206, 235, 0.3);
+        transform: translateY(-2px);
+    }
+}
+
+/* Animation for collapsing navbar */
+.navbar-collapse.collapsing {
+    transition: height 0.35s ease;
+}
+
+.navbar-collapse.show {
+    animation: expandDown 0.35s ease-out;
+}
+
+@keyframes expandDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

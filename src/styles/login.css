@@ -177,31 +177,35 @@
   }
   
   /* For extremely small screens */
-  @media (max-width: 320px) {
-    .login-card {
-      padding: 1rem;
-    }
-    
-    .login-header {
-      margin-bottom: 1rem;
-    }
-    
-    .form-floating {
-      margin-bottom: 0.75rem !important;
-    }
+  /* ...existing styles... */
+
+/* For extremely small screens */
+@media (max-width: 320px) {
+  .login-card {
+    padding: 1rem;
   }
-  
-  /* Custom form check for sky blue theme */
-  .form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+
+  .login-header {
+    margin-bottom: 1rem;
   }
-  
-  /* Custom animations for form elements */
-  .animate__fadeIn {
-    animation-duration: 0.8s;
+
+  .form-floating {
+    margin-bottom: 0.75rem !important;
   }
-  
-  .animate__bounceIn {
-    animation-duration: 1s;
+}
+
+/* Fix for Sign In button on mobile view */
+@media (max-width: 480px) {
+  .btn-signin {
+    display: block;
+    width: 100% !important;
+    margin: 0 auto 1rem auto !important;
+    font-size: 1rem;
+    padding: 12px;
+    text-align: center;
   }
+
+  .login-card form {
+    text-align: center; /* ensures content inside form is centered */
+  }
+}

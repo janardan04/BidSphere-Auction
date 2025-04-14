@@ -1,151 +1,158 @@
-/* src/styles/seller.css */
-
 :root {
-    --sky-blue-primary: #4dabf7;
-    --sky-blue-secondary: #339af0;
-    --sky-blue-dark: #228be6;
-    --sky-blue-light: #74c0fc;
-    --sky-blue-lighter: #e7f5ff;
-    --sky-blue-gradient: linear-gradient(135deg, #4dabf7 0%, #228be6 100%);
-  }
-  
-  .seller-login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 80vh;
-    padding: 20px;
-    background-color: #f8f9fa;
-    width: 500px;
-  }
-  
+  --sky-blue-primary: #4dabf7;
+  --sky-blue-secondary: #339af0;
+  --sky-blue-dark: #228be6;
+  --sky-blue-light: #74c0fc;
+  --sky-blue-lighter: #e7f5ff;
+  --sky-blue-gradient: linear-gradient(135deg, #4dabf7 0%, #228be6 100%);
+}
+
+.seller-login-card {
+  width: 100%;
+  max-width: 700px;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-top: 5px solid var(--sky-blue-primary);
+  margin: 0 auto;
+}
+
+.seller-login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.seller-login-header h2 {
+  color: var(--sky-blue-dark);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.seller-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--sky-blue-gradient);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
+}
+
+.form-control:focus {
+  border-color: var(--sky-blue-primary);
+  box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--sky-blue-primary);
+  border-color: var(--sky-blue-primary);
+}
+
+.btn-seller-signin {
+  background: var(--sky-blue-gradient);
+  border: none;
+  color: white;
+  padding: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
+}
+
+.btn-seller-signin:hover {
+  background: linear-gradient(135deg, #228be6 0%, #1971c2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(34, 139, 230, 0.4);
+}
+
+.btn-seller-signin:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(34, 139, 230, 0.4);
+}
+
+.register-link {
+  color: var(--sky-blue-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-link:hover {
+  color: var(--sky-blue-dark);
+  text-decoration: underline;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+  z-index: 5;
+}
+
+.password-toggle-icon:hover {
+  color: var(--sky-blue-primary) !important;
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #ffe3e3;
+  color: #e03131;
+}
+
+.alert-success {
+  background-color: #d3f9d8;
+  color: #2b8a3e;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 576px) {
   .seller-login-card {
-    width: 100%;
-    max-width: 500px;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    border-top: 5px solid var(--sky-blue-primary);
-  }
-  
-  .seller-login-header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .seller-login-header h2 {
-    color: var(--sky-blue-dark);
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-  
-  .seller-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    background: var(--sky-blue-gradient);
-    color: white;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
-  }
-  
-  .form-control:focus {
-    border-color: var(--sky-blue-primary);
-    box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
-  }
-  
-  .form-check-input:checked {
-    background-color: var(--sky-blue-primary);
-    border-color: var(--sky-blue-primary);
+    padding: 60px;
+    max-width: 100%;
+    border-radius: 10px;
   }
   
   .btn-seller-signin {
-    background: var(--sky-blue-gradient);
-    border: none;
-    color: white;
     padding: 12px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(34, 139, 230, 0.3);
+    font-size: 1rem;
   }
   
-  .btn-seller-signin:hover {
-    background: linear-gradient(135deg, #228be6 0%, #1971c2 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(34, 139, 230, 0.4);
+  .seller-login-header h2 {
+    font-size: 1.5rem;
   }
   
-  .btn-seller-signin:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 5px rgba(34, 139, 230, 0.4);
+  .form-floating > .form-control {
+    font-size: 1rem;
   }
   
-  .register-link {
-    color: var(--sky-blue-primary);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  
-  .register-link:hover {
-    color: var(--sky-blue-dark);
-    text-decoration: underline;
-  }
-  
-  .password-toggle-icon {
-    cursor: pointer;
-    z-index: 5;
-  }
-  
-  .password-toggle-icon:hover {
-    color: var(--sky-blue-primary) !important;
-  }
-  
-  /* Alert styling */
-  .alert {
-    border-radius: 8px;
-    padding: 12px 15px;
-    margin-bottom: 20px;
-    border: none;
-  }
-  
-  .alert-danger {
-    background-color: #ffe3e3;
-    color: #e03131;
-  }
-  
-  .alert-success {
-    background-color: #d3f9d8;
-    color: #2b8a3e;
-  }
-  
-  /* Animation delay classes are already in your React component */
-  
-  /* Media queries for responsiveness */
-  @media (max-width: 576px) {
-    .seller-login-card {
-      padding: 20px;
-    }
-    
-    .btn-seller-signin {
-      padding: 10px;
-    }
-    
-    .seller-login-header h2 {
-      font-size: 1.5rem;
-    }
-  }
-  
-  /* For better form input visuals */
-  .form-floating>.form-control {
+  .form-floating > label {
     padding: 1rem 0.75rem;
   }
   
-  .form-floating>.form-control:focus~label,
-  .form-floating>.form-control:not(:placeholder-shown)~label {
-    color: var(--sky-blue-primary);
+  .alert {
+    padding: 10px 12px;
   }
+  
+  .seller-badge {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* For better form input visuals */
+.form-floating>.form-control {
+  padding: 1rem 0.75rem;
+}
+
+.form-floating>.form-control:focus~label,
+.form-floating>.form-control:not(:placeholder-shown)~label {
+  color: var(--sky-blue-primary);
+}

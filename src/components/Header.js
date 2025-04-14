@@ -8,6 +8,7 @@ import "../styles/header.css";
 const Header = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -20,21 +21,21 @@ const Header = () => {
         signOut(auth)
             .then(() => {
                 navigate("/");
+                closeNavbar();
             })
             .catch((error) => {
                 console.error("Logout error:", error);
             });
     };
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        const searchQuery = e.target.querySelector(".search-input").value;
-        console.log("Search query:", searchQuery);
-        navigate(`/auctions?search=${searchQuery}`);
-    };
-
     const navigateTo = (path) => {
         navigate(path);
+        closeNavbar();
+    };
+
+    const closeNavbar = () => {
+        if (window.innerWidth < 992) {
+            setIsNavCollapsed(true);
+        }
     };
 
     return (
@@ -44,20 +45,19 @@ const Header = () => {
                     className="navbar-brand nav-button" 
                     onClick={() => navigateTo("/")}
                 >
-                    BidSphere
+                    <span className="fw-bold text-primary">BidSphere</span>
                 </button>
                 <button
                     className="navbar-toggler"
                     type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
+                    onClick={() => setIsNavCollapsed(!isNavCollapsed)}
                     aria-controls="navbarNav"
-                    aria-expanded="false"
+                    aria-expanded={!isNavCollapsed}
                     aria-label="Toggle navigation"
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
+                <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
                             <button 
@@ -149,10 +149,9 @@ const Header = () => {
                                 </li>
                             </>
                         )}
-                    </ul>
-                    
+                    </ul>         
                     {user && (
-                        <span className="navbar-text ms-3">
+                        <span className="navbar-text ms-3 user-display">
                             <b>{user.displayName || user.email}</b>
                         </span>
                     )}
