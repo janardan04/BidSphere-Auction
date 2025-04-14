@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Alert, Modal, Card, InputGroup } from 'react-bootstrap';
-import { Eye, EyeSlash, Lock, Envelope, Shield } from 'react-bootstrap-icons'; // Updated imports
+import { Eye, EyeSlash, Lock, Envelope, Shield } from 'react-bootstrap-icons';
 import '../styles/admin-login.css';
 
 const AdminLogin = () => {
@@ -18,17 +18,24 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   // Hardcoded admin credentials
-  const ADMIN_EMAIL = 'janardhanborse2003@gmail.com';
-  const ADMIN_PASSWORD = 'admin123';
+  const ADMINS = [
+    { email: 'janardhanborse2003@gmail.com', password: 'admin123' },
+    { email: 'vivek@gmail.com', password: 'Vivek@123' }
+  ];
 
   const handleLogin = (e) => {
     e.preventDefault();
     setError('');
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      navigate('/admin-dashboard', { state: { isAuthenticated: true, email: ADMIN_EMAIL } });
+    // Check if the provided email and password match any admin credentials
+    const isValidAdmin = ADMINS.some(
+      (admin) => admin.email === email && admin.password === password
+    );
+
+    if (isValidAdmin) {
+      navigate('/admin-dashboard', { state: { isAuthenticated: true, email } });
     } else {
-      setError('Invalid email or password. Only the admin can access this page.');
+      setError('Invalid email or password. Only admins can access this page.');
     }
   };
 
@@ -39,8 +46,10 @@ const AdminLogin = () => {
   };
 
   const handleForgotPassword = () => {
-    if (email !== ADMIN_EMAIL) {
-      setError('Only the admin email (janardhanborse2003@gmail.com) can reset the password.');
+    // Check if the email matches any admin email
+    const isAdminEmail = ADMINS.some((admin) => admin.email === email);
+    if (!isAdminEmail) {
+      setError('Only registered admin emails can reset the password.');
       return;
     }
     const generatedOtp = generateOtp();
@@ -104,7 +113,7 @@ const AdminLogin = () => {
                   <Form.Group className="mb-4" controlId="formEmail">
                     <Form.Label>Email Address</Form.Label>
                     <InputGroup>
-                      <InputGroup.Text className="input-icon"><Envelope /></InputGroup.Text> {/* Replaced Mail with Envelope */}
+                      <InputGroup.Text className="input-icon"><Envelope /></InputGroup.Text>
                       <Form.Control
                         type="email"
                         placeholder="admin@example.com"
@@ -133,7 +142,7 @@ const AdminLogin = () => {
                         className="password-toggle" 
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeSlash /> : <Eye />} {/* Replaced EyeOff with EyeSlash */}
+                        {showPassword ? <EyeSlash /> : <Eye />}
                       </Button>
                     </InputGroup>
                   </Form.Group>
@@ -175,7 +184,7 @@ const AdminLogin = () => {
           {resetStep === 1 && (
             <div className="verify-email-step">
               <div className="icon-container">
-                <Envelope className="modal-icon" /> {/* Replaced Mail with Envelope */}
+                <Envelope className="modal-icon" />
               </div>
               <p>Enter your email address to receive a verification code.</p>
               <Form.Group className="mb-3">
@@ -234,7 +243,7 @@ const AdminLogin = () => {
                     variant="light" 
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeSlash /> : <Eye />} {/* Replaced EyeOff with EyeSlash */}
+                    {showPassword ? <EyeSlash /> : <Eye />}
                   </Button>
                 </InputGroup>
                 <Form.Text>Password must be at least 6 characters long</Form.Text>

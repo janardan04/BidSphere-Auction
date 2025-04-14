@@ -4,6 +4,15 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
+    
+    // Function to handle scrolling to the top of the page
+    const scrollToTop = (e) => {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
 
     return (
         <footer>
@@ -42,6 +51,7 @@ const Footer = () => {
                     border-radius: 25px;
                     background-color: rgba(255, 255, 255, 0.2);
                     transition: all 0.3s ease, transform 0.3s ease;
+                    cursor: pointer;
                 }
 
                 .footer-top a:hover {
@@ -166,7 +176,7 @@ const Footer = () => {
                 `}
             </style>
             <div className="footer-top">
-                <a href="#">Back to Top</a>
+                <a onClick={scrollToTop}>Back to Top</a>
             </div>
 
             <div className="footer-content">
@@ -210,23 +220,23 @@ const Footer = () => {
                     <h3>Connect with Us</h3>
                     <ul>
                         <li>
-                            <a href="#">
+                            <a href="https://www.linkedin.com/in/janardan-borase-25a546232/">
                                 <i className="fab fa-facebook"></i> Facebook
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://www.linkedin.com/in/janardan-borase-25a546232/">
                                 <i className="fab fa-twitter"></i> Twitter
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://www.linkedin.com/in/janardan-borase-25a546232/">
                                 <i className="fab fa-instagram"></i> Instagram
                             </a>
                         </li>
                         <li>
-                            <a href="#">
-                                <i className="fab fa-linkedin"></i> LinkedIn
+                            <a href="https://www.linkedin.com/in/janardan-borase-25a546232/">
+                                <i className="fab fa-linkedin "></i> LinkedIn
                             </a>
                         </li>
                     </ul>

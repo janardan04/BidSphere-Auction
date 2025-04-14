@@ -4,19 +4,10 @@
   background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
   min-height: 110vh;
   padding-bottom: 2rem;
-}
-
-.container {
+  padding-left: 1rem;
+  padding-right: 1rem;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 0 1rem;
-  
-    width: 100%;
-   
-   
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
 }
 
 /* Header Styles */
@@ -76,7 +67,6 @@
   margin-bottom: 2rem;
   width: 100%;
 }
-
 .stat-card {
   flex: 1;
   min-width: 180px;
@@ -207,8 +197,8 @@
 }
 
 .product-table th {
-  background: linear-gradient(45deg, #0288d1, #29b6f6);
-  color: white;
+  background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+  color: rgb(4, 130, 239);
   font-weight: 600;
   text-align: left;
   padding: 1rem;

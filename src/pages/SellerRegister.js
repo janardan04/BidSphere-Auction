@@ -108,7 +108,7 @@ const SellerRegister = () => {
 
     return (
         <main className="my-5">
-            <div className="reg-container">
+            <div className="">
                 <div className="seller-reg-card">
                     <div className="seller-header animate__animated animate__fadeInDown">
                         <div className="seller-badge">

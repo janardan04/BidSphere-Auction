@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
 import { database } from '../firebase/firebaseConfig';
+import JsBarcode from 'jsbarcode';
 import '../styles/receipt.css';
 
 const Receipt = () => {
@@ -11,6 +12,7 @@ const Receipt = () => {
   const [error, setError] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
+  const barcodeRef = useRef(null);
 
   const queryParams = new URLSearchParams(location.search);
   const auctionId = queryParams.get('auctionId');
@@ -43,6 +45,15 @@ const Receipt = () => {
             } else {
               setPayment({ paymentStatus: 'Pending' });
             }
+
+            // Generate barcode
+            JsBarcode(barcodeRef.current, auctionId, {
+              format: 'CODE128',
+              height: 50,
+              width: 2,
+              displayValue: true,
+              fontSize: 14,
+            });
           } else {
             setError('Auction not found.');
           }
@@ -97,19 +108,25 @@ const Receipt = () => {
         <div className="receipt-header">
           <h2>Payment Receipt</h2>
         </div>
-        
+
         <div className="receipt-content">
           <div className="receipt-stamp">PAID</div>
-          
+
+          <div className="company-info">
+            <p><strong>AuctionHub</strong></p>
+            <p>123 Commerce St, Trade City, TC 12345</p>
+            <p>Email: support@auctionhub.com | Phone: ( ​​(123) 456-7890</p>
+          </div>
+
           <div className="receipt-title">
             <i className="bi bi-check-circle-fill"></i>
             <h3>Thank you for your purchase!</h3>
           </div>
-          
+
           <div className="product-summary">
             <div className="product-image">
               {auction.images ? (
-                <img src={auction.images || "/placeholder.svg"} alt={auction.productName} />
+                <img src={auction.images || '/placeholder.svg'} alt={auction.productName} />
               ) : (
                 <div className="no-image">
                   <i className="bi bi-image"></i>
@@ -121,7 +138,11 @@ const Receipt = () => {
               <div className="price-tag">₹{auction.currentPrice.toFixed(2)}</div>
             </div>
           </div>
-          
+
+          <div className="barcode-container">
+            <svg className="barcode" ref={barcodeRef}></svg>
+          </div>
+
           <div className="receipt-details">
             <div className="detail-row">
               <span className="detail-label">Seller:</span>
@@ -156,7 +177,7 @@ const Receipt = () => {
               </span>
             </div>
           </div>
-          
+
           <div className="receipt-actions">
             <button className="print-button" onClick={handlePrint}>
               <i className="bi bi-printer"></i> Print Receipt

@@ -11,102 +11,110 @@
   --text-muted: #6c757d;
   --border-color: #dee2e6;
   --bg-light: #f8f9fa;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Softer shadow for realism */
 }
 
 /* Page Layout */
 .receipt-page {
-  font-family: "Segoe UI", system-ui, sans-serif;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+  font-family: "Helvetica Neue", Arial, sans-serif; /* More professional font */
+  background: #f4f4f4; /* Subtle neutral background */
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 1rem;
 }
 
 .receipt-container {
-  max-width: 800px;
+  max-width: 600px; /* Narrower for a receipt-like feel */
   width: 100%;
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: var(--box-shadow);
   overflow: hidden;
-  animation: fadeIn 0.5s ease-out;
   position: relative;
+  margin: 0 auto;
 }
 
 /* Header */
 .receipt-header {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
-  padding: 1.5rem;
+  padding: 1rem;
   text-align: center;
-  position: relative;
 }
 
 .receipt-header h2 {
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 /* Receipt Stamp */
 .receipt-stamp {
   position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform: translateY(-50%) rotate(-30deg);
-  font-size: 4rem;
-  color: rgba(46, 204, 113, 0.2);
+  top: 10%;
+  right: 1rem;
+  transform: rotate(-20deg);
+  font-size: 2.5rem;
+  color: rgba(46, 204, 113, 0.3);
   font-weight: 900;
-  border: 0.5rem solid rgba(46, 204, 113, 0.2);
-  border-radius: 10px;
-  padding: 0.5rem 1rem;
+  border: 0.3rem solid rgba(46, 204, 113, 0.3);
+  border-radius: 8px;
+  padding: 0.3rem 0.8rem;
   pointer-events: none;
   z-index: 1;
 }
 
 /* Content */
 .receipt-content {
-  padding: 2rem;
-  position: relative;
+  padding: 1.5rem;
 }
 
 /* Receipt Title */
 .receipt-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
   text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 .receipt-title i {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--success-color);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .receipt-title h3 {
   margin: 0;
   color: var(--text-color);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Company Info for Realism */
+.company-info {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.company-info p {
+  margin: 0.2rem 0;
 }
 
 /* Product Summary */
 .product-summary {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
   border-bottom: 1px dashed var(--border-color);
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -126,7 +134,7 @@
   justify-content: center;
   align-items: center;
   color: var(--text-muted);
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 .product-details {
@@ -134,57 +142,57 @@
 }
 
 .product-details h4 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem;
   color: var(--text-color);
-  font-size: 1.3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .price-tag {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--primary-dark);
 }
 
 /* Receipt Details */
 .receipt-details {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem; /* Smaller for receipt-like text */
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem 0;
+  border-bottom: 1px dotted var(--border-color); /* Dotted for realism */
 }
 
 .detail-row:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
 .detail-label {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
 .detail-value {
   color: var(--text-color);
   text-align: right;
+  max-width: 60%;
 }
 
 .payment-status {
-  padding-top: 1.2rem;
-  margin-top: 0.5rem;
+  padding-top: 1rem;
   border-top: 1px dashed var(--border-color);
 }
 
 /* Status Badge */
 .status-badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .status-badge.completed {
@@ -197,27 +205,36 @@
   color: var(--warning-color);
 }
 
+/* Barcode */
+.barcode-container {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.barcode {
+  height: 50px;
+  width: 200px;
+  margin: 0 auto;
+}
+
 /* Receipt Actions */
 .receipt-actions {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .print-button,
 .back-button {
-  flex: 1;
-  padding: 0.8rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  min-width: 150px;
 }
 
 .print-button {
@@ -228,8 +245,7 @@
 
 .print-button:hover {
   background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
 }
 
 .back-button {
@@ -247,20 +263,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
+  padding: 2rem;
+  gap: 0.5rem;
 }
 
 .loading-spinner p {
   color: var(--text-muted);
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(74, 144, 226, 0.2);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(74, 144, 226, 0.2);
   border-radius: 50%;
   border-top-color: var(--primary-color);
   animation: spin 1s ease-in-out infinite;
@@ -277,47 +292,80 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem;
+  padding: 2rem;
   gap: 1rem;
   text-align: center;
 }
 
 .error-message i {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--danger-color);
 }
 
 .error-message p {
   color: var(--danger-color);
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
 }
 
 /* Print Styles */
 @media print {
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   .receipt-page {
     background: white;
     padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
   }
 
   .receipt-container {
     box-shadow: none;
     max-width: 100%;
-  }
-
-  .receipt-actions {
-    display: none;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    height: auto;
+    min-height: 100%;
   }
 
   .receipt-header {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    padding: 1cm;
+  }
+
+  .receipt-content {
+    padding: 1cm;
+  }
+
+  .receipt-actions,
+  .receipt-stamp {
+    display: none; /* Hide buttons and stamp when printing */
+  }
+
+  .barcode {
+    height: 60px; /* Slightly larger for print clarity */
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0; /* Remove default margins */
   }
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+  .receipt-container {
+    max-width: 90%;
+  }
+
   .product-summary {
     flex-direction: column;
     align-items: center;
@@ -325,18 +373,17 @@
   }
 
   .product-image {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
 
   .receipt-content {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .receipt-stamp {
-    font-size: 3rem;
-    border-width: 0.3rem;
-    padding: 0.3rem 0.6rem;
+    font-size: 2rem;
+    border-width: 0.2rem;
   }
 }
 
@@ -348,15 +395,12 @@
   .print-button,
   .back-button {
     width: 100%;
-  }
-
-  .receipt-content {
-    padding: 1.2rem;
+    padding: 0.7rem;
   }
 
   .detail-row {
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.2rem;
   }
 
   .detail-value {
@@ -368,7 +412,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
