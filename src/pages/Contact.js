@@ -32,8 +32,8 @@ const Contact = () => {
                                     <p className="card-text"><strong>Co-Founder</strong></p>
                                     <p className="card-text">
                                         Email:{' '}
-                                        <a href="mailto:janardhanborse2003@gmail.com">
-                                            janardhanborse2003@gmail.com
+                                        <a href="mailto:bidsphere@gmail.com">
+                                            bidsphere@gmail.com
                                         </a>
                                     </p>
                                     <p className="card-text">Mobile: 7038544159</p>

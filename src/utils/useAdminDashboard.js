@@ -34,7 +34,7 @@ export const useAdminDashboard = () => {
     if (
       !state ||
       !state.isAuthenticated ||
-      state.email !== "janardhanborse2003@gmail.com"
+      state.email !== "bidsphere@gmail.com"
     ) {
       setError("You are not authorized to access this page.");
       navigate("/admin-login");

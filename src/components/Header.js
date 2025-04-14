@@ -129,7 +129,7 @@ const Header = () => {
                                         Profile
                                     </button>
                                 </li>
-                                {user.email === "janardhanborse2003@gmail.com" || "vivek@gmail.com" && (
+                                {user.email === "bidsphere@gmail.com" || "vivek@gmail.com" && (
                                     <li className="nav-item">
                                         <button 
                                             className="nav-link nav-button" 
