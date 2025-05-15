@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/BidSphere-Auction/static/css/main.24c4e072.css",
-    "main.js": "/BidSphere-Auction/static/js/main.fdff2fc7.js",
+    "main.js": "/BidSphere-Auction/static/js/main.dee735e5.js",
     "index.html": "/BidSphere-Auction/index.html",
     "main.24c4e072.css.map": "/BidSphere-Auction/static/css/main.24c4e072.css.map",
-    "main.fdff2fc7.js.map": "/BidSphere-Auction/static/js/main.fdff2fc7.js.map"
+    "main.dee735e5.js.map": "/BidSphere-Auction/static/js/main.dee735e5.js.map"
   },
   "entrypoints": [
     "static/css/main.24c4e072.css",
-    "static/js/main.fdff2fc7.js"
+    "static/js/main.dee735e5.js"
   ]
 }
