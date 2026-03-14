@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import { ref, get } from 'firebase/database';
+import { auth, database } from '../firebase/firebaseConfig';
+import { validateEmail, validatePassword, getFirebaseAuthErrorMessage } from '../utils/validation';
 import '../styles/login.css';
 
 const Login = () => {
@@ -12,24 +14,65 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const validateForm = () => {
+        const errors = {
+            email: validateEmail(email),
+            password: validatePassword(password),
+        };
+        setFieldErrors(errors);
+        return !errors.email && !errors.password;
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                setSuccess('Login successful!');
-                setTimeout(() => {
-                    navigate('/auctions'); // Redirect to view-products equivalent
-                }, 1000);
-            })
-            .catch((error) => {
-                setError(error.message);
-            });
+        if (!validateForm()) return;
+
+        setLoading(true);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Only reject if they are explicitly a seller
+            const sellerRef = ref(database, `sellers/${user.uid}`);
+            const sellerSnap = await get(sellerRef);
+
+            if (sellerSnap.exists()) {
+                // This is a seller account — reject from user login
+                await auth.signOut();
+                setError('This account is registered as a seller. Please use the Seller Login page.');
+                return;
+            }
+
+            // Check if user record exists, if not create one
+            const userRef = ref(database, `users/${user.uid}`);
+            const userSnap = await get(userRef);
+            if (!userSnap.exists()) {
+                // Auto-create user record for existing Firebase Auth users
+                const { set } = await import('firebase/database');
+                await set(userRef, {
+                    name: user.displayName || user.email.split('@')[0],
+                    email: user.email,
+                    role: 'user',
+                    createdAt: Date.now(),
+                });
+            }
+
+            setSuccess('Login successful!');
+            setTimeout(() => {
+                navigate('/auctions');
+            }, 1000);
+        } catch (err) {
+            setError(getFirebaseAuthErrorMessage(err.code));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -91,17 +134,23 @@ const Login = () => {
                             >
                                 <input
                                     type="email"
-                                    className="form-control"
+                                    className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
                                     id="email"
                                     name="email"
                                     placeholder="name@example.com"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        setFieldErrors((prev) => ({ ...prev, email: '' }));
+                                    }}
                                     required
                                 />
                                 <label htmlFor="email">
                                     <i className="fas fa-envelope me-2"></i>Email address
                                 </label>
+                                {fieldErrors.email && (
+                                    <div className="invalid-feedback">{fieldErrors.email}</div>
+                                )}
                             </div>
 
                             <div
@@ -110,12 +159,15 @@ const Login = () => {
                             >
                                 <input
                                     type={showPassword ? 'text' : 'password'}
-                                    className="form-control password-toggle"
+                                    className={`form-control password-toggle ${fieldErrors.password ? 'is-invalid' : ''}`}
                                     id="password"
                                     name="password"
                                     placeholder="Password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setFieldErrors((prev) => ({ ...prev, password: '' }));
+                                    }}
                                     required
                                 />
                                 <label htmlFor="password">
@@ -124,7 +176,7 @@ const Login = () => {
                                 <div
                                     className="password-toggle-icon position-absolute end-0 top-50 translate-middle-y me-3"
                                     onClick={togglePasswordVisibility}
-                                    style={{ cursor: 'pointer' }}
+                                    style={{ cursor: 'pointer', zIndex: 5 }}
                                 >
                                     <i
                                         className={`fas ${
@@ -132,6 +184,9 @@ const Login = () => {
                                         } text-muted`}
                                     ></i>
                                 </div>
+                                {fieldErrors.password && (
+                                    <div className="invalid-feedback">{fieldErrors.password}</div>
+                                )}
                             </div>
 
                             <div
@@ -160,8 +215,18 @@ const Login = () => {
                                 type="submit"
                                 className="btn btn-signin w-100 mb-4 animate__animated animate__bounceIn"
                                 style={{ animationDelay: '0.8s' }}
+                                disabled={loading}
                             >
-                                <i className="fas fa-sign-in-alt me-2"></i>Sign In
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        Signing in...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-sign-in-alt me-2"></i>Sign In
+                                    </>
+                                )}
                             </button>
 
                             <div

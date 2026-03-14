@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, database } from '../firebase/firebaseConfig';
 import { ref, onValue, get } from 'firebase/database';
 import { Modal, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import '../styles/user-profile.css';
 
 const Profile = () => {
-  const [user, loadingAuth, errorAuth] = useAuthState(auth);
+  const { user, loading: authLoading } = useAuth();
   const [auctionsWon, setAuctionsWon] = useState([]);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loadingAuth) return;
+    if (authLoading) return;
 
     if (!user) {
       navigate('/login');
@@ -25,11 +25,15 @@ const Profile = () => {
     const auctionsRef = ref(database, 'auctions');
     const unsubscribe = onValue(
       auctionsRef,
-      (snapshot) => {
+      async (snapshot) => {
         if (snapshot.exists()) {
           const auctions = snapshot.val();
+          const currentTime = Date.now();
           const won = Object.entries(auctions)
-            .filter(([_, auction]) => auction.highestBidder === user.email && !auction.isActive)
+            .filter(([_, auction]) => {
+              const endTime = auction.endTime || 0;
+              return auction.highestBidder === user.email && currentTime >= endTime;
+            })
             .map(([id, auction]) => ({
               id,
               name: auction.productName,
@@ -40,36 +44,29 @@ const Profile = () => {
               endTimeFormatted: new Date(auction.endTime).toLocaleString(),
             }));
 
-          // Fetch payment status for each auction
-          Promise.all(
-            won.map((auction) =>
-              get(ref(database, `payments`)).then((snapshot) => {
-                if (snapshot.exists()) {
-                  const payments = snapshot.val();
-                  const payment = Object.values(payments).find(
-                    (p) => p.auctionId === auction.id
-                  );
-                  return {
-                    ...auction,
-                    paymentStatus: payment ? payment.paymentStatus : 'Pending',
-                  };
-                }
-                return { ...auction, paymentStatus: 'Pending' };
-              })
-            )
-          )
-            .then((updatedAuctions) => {
-              setAuctionsWon(updatedAuctions);
-              setLoading(false);
-            })
-            .catch((err) => {
-              setError('Failed to load payment status: ' + err.message);
-              setLoading(false);
+          // Fetch ALL payments once instead of once per auction
+          try {
+            const paymentsSnapshot = await get(ref(database, 'payments'));
+            const payments = paymentsSnapshot.exists() ? paymentsSnapshot.val() : {};
+            const paymentsList = Object.values(payments);
+
+            const updatedAuctions = won.map((auction) => {
+              const payment = paymentsList.find((p) => p.auctionId === auction.id);
+              return {
+                ...auction,
+                paymentStatus: payment ? payment.paymentStatus : 'Pending',
+              };
             });
+
+            setAuctionsWon(updatedAuctions);
+          } catch (err) {
+            setError('Failed to load payment status: ' + err.message);
+            setAuctionsWon(won.map((a) => ({ ...a, paymentStatus: 'Pending' })));
+          }
         } else {
           setAuctionsWon([]);
-          setLoading(false);
         }
+        setLoading(false);
       },
       (err) => {
         setError('Failed to load auctions: ' + err.message);
@@ -78,7 +75,7 @@ const Profile = () => {
     );
 
     return () => unsubscribe();
-  }, [user, loadingAuth, navigate]);
+  }, [user, authLoading, navigate]);
 
   const showReceipt = (auction) => {
     setSelectedAuction(auction);
@@ -89,24 +86,15 @@ const Profile = () => {
   };
 
   const isAuctionEnded = (endTime) => {
-    const currentTime = new Date().getTime();
-    return currentTime >= endTime;
+    return Date.now() >= endTime;
   };
 
-  if (loading || loadingAuth) {
+  if (loading || authLoading) {
     return (
       <div className="container py-5 text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-      </div>
-    );
-  }
-
-  if (errorAuth) {
-    return (
-      <div className="container py-5">
-        <Alert variant="danger">Authentication error: {errorAuth.message}</Alert>
       </div>
     );
   }

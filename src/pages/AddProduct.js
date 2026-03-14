@@ -1,135 +1,153 @@
-import React, { useState, useEffect } from 'react'; // Import React and hooks for state and side effects
-import { useNavigate } from 'react-router-dom'; // Import navigation hook for redirecting
-import { ref, set } from 'firebase/database'; // Import Firebase database functions for saving data
-import { auth, database } from '../firebase/firebaseConfig'; // Import Firebase auth and database configuration
-import '../styles/add-product.css'; // Import CSS for styling the component
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ref, set } from 'firebase/database';
+import { auth, database } from '../firebase/firebaseConfig';
+import { validateRequired, validateMinLength, validatePrice, validateImageFiles } from '../utils/validation';
+import { notifyNewProduct } from '../utils/notificationService';
+import '../styles/add-product.css';
 
-// AddProduct component: Allows sellers to create a new auction listing
 const AddProduct = () => {
-    // State to manage form inputs, initialized with empty/default values
     const [formData, setFormData] = useState({
-        productName: '', // Stores the product name entered by the user
-        description: '', // Stores the product description
-        startingPrice: '', // Stores the starting bid price
-        startTime: '', // Stores the auction start date and time
-        endTime: '', // Stores the auction end date and time
-        images: [], // Stores selected image files for upload
+        productName: '',
+        description: '',
+        startingPrice: '',
+        startTime: '',
+        endTime: '',
+        images: [],
     });
 
-    // State for UI feedback and control
-    const [error, setError] = useState(''); // Stores error messages to display to the user
-    const [success, setSuccess] = useState(''); // Stores success messages for feedback
-    const [loading, setLoading] = useState(false); // Tracks form submission status (e.g., for spinner)
-    const [previewImages, setPreviewImages] = useState([]); // Stores URLs for previewing selected images
-    const navigate = useNavigate(); // Hook to programmatically navigate to other routes
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [previewImages, setPreviewImages] = useState([]);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const navigate = useNavigate();
 
-    // useEffect: Runs on component mount to ensure the user is authenticated
     useEffect(() => {
         if (!auth.currentUser) {
-            navigate('/seller-login'); // Redirect to login page if no user is logged in
+            navigate('/seller-login');
         }
-    }, [navigate]); // Dependency array includes navigate to ensure stable reference
+    }, [navigate]);
 
-    // handleChange: Updates formData state when text inputs change
     const handleChange = (e) => {
-        const { name, value } = e.target; // Extract input name and value from event
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: value, // Dynamically update the corresponding form field
+            [name]: value,
         }));
+        // Clear field error on change
+        setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
-    // handleImageChange: Handles image file selection and preview generation
     const handleImageChange = (e) => {
-        const files = Array.from(e.target.files); // Convert FileList to array for processing
-        if (files.length > 5) {
-            setError('You can upload a maximum of 5 images.'); // Enforce max image limit
+        const files = Array.from(e.target.files);
+        
+        const imgError = validateImageFiles(files, 5, 2);
+        if (imgError) {
+            setFieldErrors((prev) => ({ ...prev, images: imgError }));
             return;
         }
 
-        // Update formData with selected image files
+        setFieldErrors((prev) => ({ ...prev, images: '' }));
         setFormData((prev) => ({
             ...prev,
             images: files,
         }));
 
-        // Generate temporary URLs for image previews
         const previews = files.map(file => URL.createObjectURL(file));
-        setPreviewImages(previews); // Store preview URLs in state
+        setPreviewImages(previews);
     };
 
-    // handleSubmit: Processes form submission to save auction data to Firebase
+    const validateForm = () => {
+        const errors = {};
+
+        const nameErr = validateMinLength(formData.productName, 3, 'Product name');
+        if (nameErr) errors.productName = nameErr;
+
+        const descErr = validateMinLength(formData.description, 10, 'Description');
+        if (descErr) errors.description = descErr;
+
+        const priceErr = validatePrice(formData.startingPrice);
+        if (priceErr) errors.startingPrice = priceErr;
+
+        const startErr = validateRequired(formData.startTime, 'Start time');
+        if (startErr) errors.startTime = startErr;
+
+        const endErr = validateRequired(formData.endTime, 'End time');
+        if (endErr) errors.endTime = endErr;
+
+        if (formData.images.length === 0) {
+            errors.images = 'Please upload at least one image.';
+        }
+
+        // Time validations
+        if (formData.startTime && formData.endTime) {
+            const startDateTime = new Date(formData.startTime).getTime();
+            const endDateTime = new Date(formData.endTime).getTime();
+            const currentTime = Date.now();
+
+            if (startDateTime < currentTime) {
+                errors.startTime = 'Start time must be in the future.';
+            }
+            if (endDateTime <= startDateTime) {
+                errors.endTime = 'End time must be after start time.';
+            }
+            // Minimum 1 hour auction duration
+            if (endDateTime - startDateTime < 3600000) {
+                errors.endTime = 'Auction duration must be at least 1 hour.';
+            }
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission behavior
-        setError(''); // Clear any previous error messages
-        setSuccess(''); // Clear any previous success messages
-        setLoading(true); // Set loading state to show spinner
+        e.preventDefault();
+        setError('');
+        setSuccess('');
 
-        // Destructure formData for easier access
+        if (!validateForm()) return;
+
+        setLoading(true);
+
         const { productName, description, startingPrice, startTime, endTime, images } = formData;
-
-        // Validate form inputs to ensure all required fields are filled
-        if (!productName || !description || !startingPrice || !startTime || !endTime || images.length === 0) {
-            setError('Please fill in all fields and upload at least one image.');
-            setLoading(false); // Reset loading state
-            return;
-        }
-
-        // Convert date strings to timestamps for comparison
-        const startDateTime = new Date(startTime).getTime(); // Start time in milliseconds
-        const endDateTime = new Date(endTime).getTime(); // End time in milliseconds
-        const currentTime = new Date().getTime(); // Current time in milliseconds
-
-        // Validate that start time is in the future
-        if (startDateTime < currentTime) {
-            setError('Start time must be in the future.');
-            setLoading(false);
-            return;
-        }
-
-        // Validate that end time is after start time
-        if (endDateTime <= startDateTime) {
-            setError('End time must be after start time.');
-            setLoading(false);
-            return;
-        }
+        const startDateTime = new Date(startTime).getTime();
+        const endDateTime = new Date(endTime).getTime();
 
         try {
-            // Convert selected images to base64 strings for storage
+            // Convert images to base64
             const imagePromises = images.map((image) => {
                 return new Promise((resolve, reject) => {
-                    const reader = new FileReader(); // Create FileReader to read image
-                    reader.onload = () => resolve(reader.result); // Resolve with base64 string
-                    reader.onerror = (error) => reject(error); // Reject if reading fails
-                    reader.readAsDataURL(image); // Read image as data URL (base64)
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsDataURL(image);
                 });
             });
 
-            // Wait for all images to be converted to base64
             const imageBase64Strings = await Promise.all(imagePromises);
 
-            // Generate a unique ID for the auction using current timestamp
             const productId = Date.now().toString();
-            // Create a Firebase database reference for the new auction
             const productRef = ref(database, `auctions/${productId}`);
-            // Save auction data to Firebase Realtime Database
             await set(productRef, {
-                productName, // Product name
-                description, // Product description
-                startingPrice: parseFloat(startingPrice), // Convert price to number
-                currentPrice: parseFloat(startingPrice), // Initialize current price as starting price
-                startTime: startDateTime, // Store start time as timestamp
-                endTime: endDateTime, // Store end time as timestamp
-                seller: auth.currentUser.email, // Store seller's email for reference
-                images: imageBase64Strings, // Store array of base64 image strings
-                isActive: false, // Set auction as inactive initially
-                paymentStatus: 'pending', // Set initial payment status
-                timestamp: Date.now(), // Record creation time
+                productName,
+                description,
+                startingPrice: parseFloat(startingPrice),
+                currentPrice: parseFloat(startingPrice),
+                startTime: startDateTime,
+                endTime: endDateTime,
+                seller: auth.currentUser.email,
+                sellerId: auth.currentUser.uid,
+                images: imageBase64Strings,
+                paymentStatus: 'pending',
+                timestamp: Date.now(),
             });
 
-            // Display success message to user
+            // Send notification to all registered users
+            await notifyNewProduct(productName, auth.currentUser.email);
+
             setSuccess('Product added successfully!');
-            // Reset form fields to initial state
             setFormData({
                 productName: '',
                 description: '',
@@ -138,152 +156,154 @@ const AddProduct = () => {
                 endTime: '',
                 images: [],
             });
-            setPreviewImages([]); // Clear image previews
-            // Redirect to seller dashboard after 1.5 seconds
+            setPreviewImages([]);
             setTimeout(() => navigate('/seller-dashboard'), 1500);
         } catch (err) {
-            // Log error for debugging purposes
             console.error('Error adding product:', err);
-            // Display error message to user
             setError('Failed to add product: ' + err.message);
         } finally {
-            // Reset loading state regardless of success or failure
             setLoading(false);
         }
     };
 
-    // Render the component UI
     return (
-        <div className="auction-page"> {/* Main container for the page */}
-            <div className="auction-container"> {/* Inner container for layout */}
+        <div className="auction-page">
+            <div className="auction-container">
                 <div className="auction-header">
-                    <h2>Add New Auction</h2> {/* Page title */}
+                    <h2>Add New Auction</h2>
                 </div>
                 <div className="auction-form">
-                    {/* Display error message if present */}
                     {error && (
                         <div className="alert-box error">
                             <i className="bi bi-exclamation-triangle"></i> {error}
                         </div>
                     )}
-                    {/* Display success message if present */}
                     {success && (
                         <div className="alert-box success">
                             <i className="bi bi-check-circle"></i> {success}
                         </div>
                     )}
-                    {/* Form for entering auction details */}
                     <form onSubmit={handleSubmit}>
-                        {/* Product Name Input */}
                         <div className="form-group">
                             <label className="form-label" htmlFor="productName">Product Name</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className={`form-control ${fieldErrors.productName ? 'is-invalid' : ''}`}
                                 id="productName"
                                 name="productName"
-                                value={formData.productName} // Controlled input
-                                onChange={handleChange} // Update state on change
-                                placeholder="Enter product name"
-                                required // Browser validation
+                                value={formData.productName}
+                                onChange={handleChange}
+                                placeholder="Enter product name (min 3 characters)"
+                                required
                             />
+                            {fieldErrors.productName && (
+                                <div className="invalid-feedback">{fieldErrors.productName}</div>
+                            )}
                         </div>
-                        {/* Description Input */}
                         <div className="form-group">
                             <label className="form-label" htmlFor="description">Description</label>
                             <textarea
-                                className="form-control"
+                                className={`form-control ${fieldErrors.description ? 'is-invalid' : ''}`}
                                 id="description"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                placeholder="Describe your product"
-                                rows="4" // Set textarea height
+                                placeholder="Describe your product (min 10 characters)"
+                                rows="4"
                                 required
                             ></textarea>
+                            {fieldErrors.description && (
+                                <div className="invalid-feedback">{fieldErrors.description}</div>
+                            )}
                         </div>
-                        {/* Starting Price Input */}
                         <div className="form-group">
                             <label className="form-label" htmlFor="startingPrice">Starting Price (₹)</label>
                             <input
                                 type="number"
-                                className="form-control"
+                                className={`form-control ${fieldErrors.startingPrice ? 'is-invalid' : ''}`}
                                 id="startingPrice"
                                 name="startingPrice"
                                 value={formData.startingPrice}
                                 onChange={handleChange}
-                                min="1" // Prevent negative or zero prices
+                                min="1"
                                 placeholder="Enter starting price"
                                 required
                             />
+                            {fieldErrors.startingPrice && (
+                                <div className="invalid-feedback">{fieldErrors.startingPrice}</div>
+                            )}
                         </div>
-                        {/* Start and End Time Inputs */}
-                        <div className="datetime-group"> {/* Group for styling date inputs */}
+                        <div className="datetime-group">
                             <div className="form-group">
                                 <label className="form-label" htmlFor="startTime">Start Time</label>
                                 <input
-                                    type="datetime-local" // Browser date-time picker
-                                    className="form-control"
+                                    type="datetime-local"
+                                    className={`form-control ${fieldErrors.startTime ? 'is-invalid' : ''}`}
                                     id="startTime"
                                     name="startTime"
                                     value={formData.startTime}
                                     onChange={handleChange}
                                     required
                                 />
+                                {fieldErrors.startTime && (
+                                    <div className="invalid-feedback">{fieldErrors.startTime}</div>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="form-label" htmlFor="endTime">End Time</label>
                                 <input
                                     type="datetime-local"
-                                    className="form-control"
+                                    className={`form-control ${fieldErrors.endTime ? 'is-invalid' : ''}`}
                                     id="endTime"
                                     name="endTime"
                                     value={formData.endTime}
                                     onChange={handleChange}
                                     required
                                 />
+                                {fieldErrors.endTime && (
+                                    <div className="invalid-feedback">{fieldErrors.endTime}</div>
+                                )}
                             </div>
                         </div>
-                        {/* Image Upload Input */}
                         <div className="form-group">
-                            <label className="form-label" htmlFor="images">Product Images (up to 5)</label>
+                            <label className="form-label" htmlFor="images">Product Images (up to 5, max 2MB each)</label>
                             <input
                                 type="file"
-                                className="form-control"
+                                className={`form-control ${fieldErrors.images ? 'is-invalid' : ''}`}
                                 id="images"
                                 name="images"
-                                accept="image/*" // Restrict to image files
-                                multiple // Allow multiple file selection
-                                onChange={handleImageChange} // Handle file selection
+                                accept="image/*"
+                                multiple
+                                onChange={handleImageChange}
                                 required
                             />
-                            {/* Display previews of selected images */}
+                            {fieldErrors.images && (
+                                <div className="invalid-feedback">{fieldErrors.images}</div>
+                            )}
                             {previewImages.length > 0 && (
                                 <div className="image-preview-container">
                                     {previewImages.map((url, index) => (
                                         <div key={index} className="image-preview">
                                             <img
-                                                src={url || "/placeholder.svg"} // Fallback if URL fails
-                                                alt={`Preview ${index + 1}`} // Accessible alt text
+                                                src={url || "/placeholder.svg"}
+                                                alt={`Preview ${index + 1}`}
                                             />
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
-                        {/* Submit Button */}
                         <button type="submit" className="submit-btn" disabled={loading}>
                             {loading ? (
                                 <>
-                                    <span className="spinner"></span> {/* Loading spinner */}
-                                    Processing... {/* Text during submission */}
+                                    <span className="spinner"></span>
+                                    Processing...
                                 </>
                             ) : (
-                                'Add Auction' // Default button text
+                                'Add Auction'
                             )}
                         </button>
                     </form>
-                    {/* Link to return to seller dashboard */}
                     <a href="/seller-dashboard" className="back-link">
                         <i className="bi bi-arrow-left"></i> Back to Dashboard
                     </a>
@@ -293,5 +313,4 @@ const AddProduct = () => {
     );
 };
 
-// Export the component for use in other parts of the app
 export default AddProduct;

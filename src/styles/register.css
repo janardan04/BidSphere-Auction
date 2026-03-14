@@ -219,3 +219,38 @@ a:hover {
 .animate__bounceIn {
   animation-duration: 1s;
 }
+
+/* Password strength indicator */
+.password-strength {
+  margin-top: 4px;
+}
+
+.strength-bar {
+  height: 4px;
+  background: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-fill.strength-1 { background: #dc3545; }
+.strength-fill.strength-2 { background: #fd7e14; }
+.strength-fill.strength-3 { background: #ffc107; }
+.strength-fill.strength-4 { background: #28a745; }
+.strength-fill.strength-5 { background: #198754; }
+
+.strength-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.strength-text-1 { color: #dc3545; }
+.strength-text-2 { color: #fd7e14; }
+.strength-text-3 { color: #ffc107; }
+.strength-text-4 { color: #28a745; }
+.strength-text-5 { color: #198754; }

@@ -1,284 +1,259 @@
+// src/pages/AdminLogin.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Alert, Modal, Card, InputGroup } from 'react-bootstrap';
-import { Eye, EyeSlash, Lock, Envelope, Shield } from 'react-bootstrap-icons';
+import { useNavigate, Link } from 'react-router-dom';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { ref, get } from 'firebase/database';
+import { auth, database } from '../firebase/firebaseConfig';
+import { validateEmail, validatePassword, getFirebaseAuthErrorMessage } from '../utils/validation';
+import { Modal, Button } from 'react-bootstrap';
 import '../styles/admin-login.css';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showForgotModal, setShowForgotModal] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [enteredOtp, setEnteredOtp] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [resetStep, setResetStep] = useState(1);
-  const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+    const navigate = useNavigate();
 
-  // Hardcoded admin credentials
-  const ADMINS = [
-    { email: 'bidsphere@gmail.com', password: 'admin123' },
-    { email: 'vivek@gmail.com', password: 'Vivek@123' }
-  ];
+    // Forgot Password Modal
+    const [showForgotModal, setShowForgotModal] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetMessage, setResetMessage] = useState('');
+    const [resetError, setResetError] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError('');
+    const validateForm = () => {
+        const errors = {
+            email: validateEmail(email),
+            password: validatePassword(password),
+        };
+        setFieldErrors(errors);
+        return !errors.email && !errors.password;
+    };
 
-    // Check if the provided email and password match any admin credentials
-    const isValidAdmin = ADMINS.some(
-      (admin) => admin.email === email && admin.password === password
-    );
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
 
-    if (isValidAdmin) {
-      navigate('/admin-dashboard', { state: { isAuthenticated: true, email } });
-    } else {
-      setError('Invalid email or password. Only admins can access this page.');
-    }
-  };
+        if (!validateForm()) return;
 
-  const generateOtp = () => {
-    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setOtp(generatedOtp);
-    return generatedOtp;
-  };
+        setLoading(true);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-  const handleForgotPassword = () => {
-    // Check if the email matches any admin email
-    const isAdminEmail = ADMINS.some((admin) => admin.email === email);
-    if (!isAdminEmail) {
-      setError('Only registered admin emails can reset the password.');
-      return;
-    }
-    const generatedOtp = generateOtp();
-    setOtpSent(true);
-    setResetStep(2);
-    setShowForgotModal(true);
-    console.log(`OTP sent to ${email}: ${generatedOtp}`);
-  };
+            // Check if user is an admin in the database
+            const adminRef = ref(database, `admins/${user.uid}`);
+            const adminSnap = await get(adminRef);
 
-  const handleVerifyOtp = () => {
-    if (enteredOtp !== otp) {
-      setError('Invalid OTP. Please try again.');
-      return;
-    }
-    setResetStep(3);
-    setError('');
-  };
+            if (adminSnap.exists()) {
+                setSuccess('Admin login successful!');
+                setTimeout(() => navigate('/admin-dashboard'), 1000);
+            } else {
+                setError('This account does not have admin privileges.');
+                await auth.signOut();
+            }
+        } catch (err) {
+            setError(getFirebaseAuthErrorMessage(err.code));
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleResetPassword = () => {
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      return;
-    }
-    
-    console.log(`Password reset to: ${newPassword}`);
-    alert('Password reset successful. You can now login with your new password.');
-    setShowForgotModal(false);
-    setOtpSent(false);
-    setError('');
-    setEnteredOtp('');
-    setNewPassword('');
-    setOtp('');
-    setResetStep(1);
-  };
+    const handleForgotPassword = async () => {
+        setResetError('');
+        setResetMessage('');
 
-  const closeModal = () => {
-    setShowForgotModal(false);
-    setOtpSent(false);
-    setError('');
-    setEnteredOtp('');
-    setNewPassword('');
-    setOtp('');
-    setResetStep(1);
-  };
+        const emailError = validateEmail(resetEmail);
+        if (emailError) {
+            setResetError(emailError);
+            return;
+        }
 
-  return (
-    <div className="admin-login-container">
-      <Container className="login-wrapper">
-        <div className="login-panel">
-          <div className="login-content">
-            <div className="login-header">
-              <h1>Admin Portal</h1>
-              <p className="subtitle">Enter your credentials to access the dashboard</p>
-            </div>
-            
-            {error && <Alert variant="danger" className="animate-alert">{error}</Alert>}
-            
-            <Card className="login-card">
-              <Card.Body>
-                <Form onSubmit={handleLogin}>
-                  <Form.Group className="mb-4" controlId="formEmail">
-                    <Form.Label>Email Address</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text className="input-icon"><Envelope /></InputGroup.Text>
-                      <Form.Control
-                        type="email"
-                        placeholder="admin@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="custom-input"
-                      />
-                    </InputGroup>
-                  </Form.Group>
+        setResetLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            setResetMessage('Password reset email sent! Check your inbox.');
+        } catch (err) {
+            setResetError(getFirebaseAuthErrorMessage(err.code));
+        } finally {
+            setResetLoading(false);
+        }
+    };
 
-                  <Form.Group className="mb-4" controlId="formPassword">
-                    <Form.Label>Password</Form.Label>
-                    <InputGroup>
-                      <InputGroup.Text className="input-icon"><Lock /></InputGroup.Text>
-                      <Form.Control
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="custom-input"
-                      />
-                      <Button 
-                        variant="light" 
-                        className="password-toggle" 
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeSlash /> : <Eye />}
-                      </Button>
-                    </InputGroup>
-                  </Form.Group>
+    return (
+        <div>
+            <main className="my-5">
+                <div className="admin-login-container">
+                    <div className="admin-login-card">
+                        <div className="admin-login-header animate__animated animate__fadeInDown">
+                            <div className="admin-badge">
+                                <i className="fas fa-shield-alt me-2"></i>Admin Portal
+                            </div>
+                            <h2>
+                                <i className="fas fa-user-shield me-2"></i>Admin Login
+                            </h2>
+                            <p className="text-muted">Access the admin dashboard</p>
+                        </div>
 
-                  <Button variant="primary" type="submit" className="login-btn">
-                    Login
-                  </Button>
-                  
-                  <div className="text-center mt-3">
-                    <Button variant="link" onClick={handleForgotPassword} className="forgot-link">
-                      Forgot Password?
+                        {error && (
+                            <div className="alert alert-danger alert-dismissible fade show animate__animated animate__slideInLeft" role="alert">
+                                <i className="fas fa-exclamation-circle me-2"></i>
+                                <span>{error}</span>
+                                <button type="button" className="btn-close" onClick={() => setError('')} aria-label="Close"></button>
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="alert alert-success alert-dismissible fade show animate__animated animate__slideInLeft" role="alert">
+                                <i className="fas fa-check-circle me-2"></i>
+                                <span>{success}</span>
+                                <button type="button" className="btn-close" onClick={() => setSuccess('')} aria-label="Close"></button>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleLogin}>
+                            <div className="form-floating mb-3 animate__animated animate__fadeIn" style={{ animationDelay: '0.2s' }}>
+                                <input
+                                    type="email"
+                                    className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
+                                    id="adminEmail"
+                                    placeholder="name@example.com"
+                                    value={email}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        setFieldErrors((prev) => ({ ...prev, email: '' }));
+                                    }}
+                                    required
+                                />
+                                <label htmlFor="adminEmail">
+                                    <i className="fas fa-envelope me-2"></i>Admin Email
+                                </label>
+                                {fieldErrors.email && <div className="invalid-feedback">{fieldErrors.email}</div>}
+                            </div>
+
+                            <div className="form-floating mb-4 animate__animated animate__fadeIn" style={{ animationDelay: '0.4s' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    className={`form-control ${fieldErrors.password ? 'is-invalid' : ''}`}
+                                    id="adminPassword"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setFieldErrors((prev) => ({ ...prev, password: '' }));
+                                    }}
+                                    required
+                                />
+                                <label htmlFor="adminPassword">
+                                    <i className="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div
+                                    className="password-toggle-icon position-absolute end-0 top-50 translate-middle-y me-3"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{ cursor: 'pointer', zIndex: 5 }}
+                                >
+                                    <i className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'} text-muted`}></i>
+                                </div>
+                                {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
+                            </div>
+
+                            <div className="d-flex justify-content-end mb-4">
+                                <button
+                                    type="button"
+                                    className="btn-link"
+                                    onClick={() => setShowForgotModal(true)}
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn btn-admin-signin w-100 mb-4 animate__animated animate__bounceIn"
+                                style={{ animationDelay: '0.6s' }}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        Signing in...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-sign-in-alt me-2"></i>Admin Sign In
+                                    </>
+                                )}
+                            </button>
+
+                            <div className="text-center">
+                                <Link to="/login" className="text-muted">
+                                    <i className="fas fa-user me-1"></i>Regular User Login
+                                </Link>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+
+            {/* Forgot Password Modal */}
+            <Modal show={showForgotModal} onHide={() => setShowForgotModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <i className="fas fa-key me-2"></i>Reset Admin Password
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p className="text-muted mb-3">
+                        Enter your admin email to receive a password reset link.
+                    </p>
+                    {resetError && (
+                        <div className="alert alert-danger">
+                            <i className="fas fa-exclamation-circle me-2"></i>{resetError}
+                        </div>
+                    )}
+                    {resetMessage && (
+                        <div className="alert alert-success">
+                            <i className="fas fa-check-circle me-2"></i>{resetMessage}
+                        </div>
+                    )}
+                    <div className="form-floating mb-3">
+                        <input
+                            type="email"
+                            className="form-control"
+                            id="resetEmail"
+                            placeholder="name@example.com"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                        />
+                        <label htmlFor="resetEmail">
+                            <i className="fas fa-envelope me-2"></i>Admin Email
+                        </label>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowForgotModal(false)}>
+                        Cancel
                     </Button>
-                  </div>
-                </Form>
-              </Card.Body>
-            </Card>
-            
-            <div className="login-footer">
-              <p>© {new Date().getFullYear()} Admin Portal. All rights reserved.</p>
-            </div>
-          </div>
+                    <Button
+                        variant="primary"
+                        onClick={handleForgotPassword}
+                        disabled={resetLoading}
+                    >
+                        {resetLoading ? (
+                            <><span className="spinner-border spinner-border-sm me-2"></span>Sending...</>
+                        ) : (
+                            <><i className="fas fa-paper-plane me-2"></i>Send Reset Link</>
+                        )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
-      </Container>
-
-      <Modal 
-        show={showForgotModal} 
-        onHide={closeModal}
-        centered
-        className="reset-modal"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {resetStep === 1 && "Reset Password"}
-            {resetStep === 2 && "Verify OTP"}
-            {resetStep === 3 && "Create New Password"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {resetStep === 1 && (
-            <div className="verify-email-step">
-              <div className="icon-container">
-                <Envelope className="modal-icon" />
-              </div>
-              <p>Enter your email address to receive a verification code.</p>
-              <Form.Group className="mb-3">
-                <Form.Label>Email Address</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-              </Form.Group>
-            </div>
-          )}
-          
-          {resetStep === 2 && (
-            <div className="verify-otp-step">
-              <div className="icon-container">
-                <Shield className="modal-icon" />
-              </div>
-              <p>A 6-digit verification code has been sent to your email.</p>
-              <Form.Group className="mb-3">
-                <Form.Label>Enter OTP</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={enteredOtp}
-                  onChange={(e) => setEnteredOtp(e.target.value)}
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                  required
-                />
-                <Form.Text className="text-muted">
-                  For demo: Check console for OTP ({otp})
-                </Form.Text>
-              </Form.Group>
-            </div>
-          )}
-          
-          {resetStep === 3 && (
-            <div className="new-password-step">
-              <div className="icon-container">
-                <Lock className="modal-icon" />
-              </div>
-              <p>Create a new password for your account.</p>
-              <Form.Group className="mb-3">
-                <Form.Label>New Password</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    required
-                  />
-                  <Button 
-                    variant="light" 
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeSlash /> : <Eye />}
-                  </Button>
-                </InputGroup>
-                <Form.Text>Password must be at least 6 characters long</Form.Text>
-              </Form.Group>
-            </div>
-          )}
-          
-          {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Cancel
-          </Button>
-          
-          {resetStep === 1 && (
-            <Button variant="primary" onClick={handleForgotPassword}>
-              Send OTP
-            </Button>
-          )}
-          
-          {resetStep === 2 && (
-            <Button variant="primary" onClick={handleVerifyOtp}>
-              Verify OTP
-            </Button>
-          )}
-          
-          {resetStep === 3 && (
-            <Button variant="success" onClick={handleResetPassword}>
-              Reset Password
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
+    );
 };
 
 export default AdminLogin;  

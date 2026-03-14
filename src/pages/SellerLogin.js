@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
 import { auth, database } from '../firebase/firebaseConfig';
+import { validateEmail, validatePassword, getFirebaseAuthErrorMessage } from '../utils/validation';
 import '../styles/sellerlogin.css';
 
 const SellerLogin = () => {
@@ -15,6 +16,8 @@ const SellerLogin = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -23,63 +26,58 @@ const SellerLogin = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
+        // Clear field error on change
+        if (name === 'sellerEmail') setFieldErrors((prev) => ({ ...prev, email: '' }));
+        if (name === 'sellerPassword') setFieldErrors((prev) => ({ ...prev, password: '' }));
     };
 
-    const handleLogin = (e) => {
+    const validateForm = () => {
+        const errors = {
+            email: validateEmail(formData.sellerEmail),
+            password: validatePassword(formData.sellerPassword),
+        };
+        setFieldErrors(errors);
+        return !errors.email && !errors.password;
+    };
+
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
+        if (!validateForm()) return;
+
+        setLoading(true);
         const { sellerEmail, sellerPassword } = formData;
 
-        signInWithEmailAndPassword(auth, sellerEmail, sellerPassword)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                const sellerRef = ref(database, 'sellers/' + user.uid);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, sellerEmail, sellerPassword);
+            const user = userCredential.user;
+            const sellerRef = ref(database, `sellers/${user.uid}`);
+            const snapshot = await get(sellerRef);
 
-                get(sellerRef)
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            setSuccess('Login successful!');
-                            sessionStorage.setItem('sellerLoggedIn', 'true');
-                            sessionStorage.setItem('sellerUid', user.uid);
-                            sessionStorage.setItem('sellerEmail', user.email);
+            if (snapshot.exists()) {
+                setSuccess('Login successful!');
+                setTimeout(() => {
+                    navigate('/seller-dashboard');
+                }, 1500);
+            } else {
+                // Check if they are a regular user
+                const userRef = ref(database, `users/${user.uid}`);
+                const userSnap = await get(userRef);
 
-                            setTimeout(() => {
-                                navigate('/seller-dashboard');
-                            }, 1500);
-                        } else {
-                            setError('This account is not registered as a seller.');
-                            auth.signOut();
-                        }
-                    })
-                    .catch((error) => {
-                        setError('Error checking seller status: ' + error.message);
-                    });
-            })
-            .catch((error) => {
-                let errorMsg = 'Login failed. Please try again.';
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMsg = 'No account found with this email.';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMsg = 'Incorrect password. Please try again.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMsg = 'Invalid email format.';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMsg = 'This account has been disabled.';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMsg = 'Too many failed login attempts. Please try again later.';
-                        break;
-                    default:
-                        errorMsg = 'Login error: ' + error.message;
+                if (userSnap.exists()) {
+                    setError('This account is registered as a user. Please use the User Login page.');
+                } else {
+                    setError('This account is not registered as a seller.');
                 }
-                setError(errorMsg);
-            });
+                await auth.signOut();
+            }
+        } catch (err) {
+            setError(getFirebaseAuthErrorMessage(err.code));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -143,7 +141,7 @@ const SellerLogin = () => {
                         >
                             <input
                                 type="email"
-                                className="form-control"
+                                className={`form-control ${fieldErrors.email ? 'is-invalid' : ''}`}
                                 id="sellerEmail"
                                 name="sellerEmail"
                                 placeholder="name@example.com"
@@ -154,6 +152,9 @@ const SellerLogin = () => {
                             <label htmlFor="sellerEmail">
                                 <i className="fas fa-envelope me-2"></i>Email address
                             </label>
+                            {fieldErrors.email && (
+                                <div className="invalid-feedback">{fieldErrors.email}</div>
+                            )}
                         </div>
 
                         <div
@@ -162,7 +163,7 @@ const SellerLogin = () => {
                         >
                             <input
                                 type={showPassword ? 'text' : 'password'}
-                                className="form-control password-toggle"
+                                className={`form-control password-toggle ${fieldErrors.password ? 'is-invalid' : ''}`}
                                 id="sellerPassword"
                                 name="sellerPassword"
                                 placeholder="Password"
@@ -176,12 +177,15 @@ const SellerLogin = () => {
                             <div
                                 className="password-toggle-icon position-absolute end-0 top-50 translate-middle-y me-3"
                                 onClick={togglePasswordVisibility}
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'pointer', zIndex: 5 }}
                             >
                                 <i
                                     className={`fas ${showPassword ? 'fa-eye' : 'fa-eye-slash'} text-muted`}
                                 ></i>
                             </div>
+                            {fieldErrors.password && (
+                                <div className="invalid-feedback">{fieldErrors.password}</div>
+                            )}
                         </div>
 
                         <div
@@ -201,14 +205,27 @@ const SellerLogin = () => {
                                     Remember me
                                 </label>
                             </div>
+                            <Link to="/forgot-password" className="btn-link">
+                                Forgot password?
+                            </Link>
                         </div>
 
                         <button
                             type="submit"
                             className="btn btn-seller-signin w-100 mb-4 animate__animated animate__bounceIn"
                             style={{ animationDelay: '0.8s' }}
+                            disabled={loading}
                         >
-                            <i className="fas fa-sign-in-alt me-2"></i>Seller Sign In
+                            {loading ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    Signing in...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-sign-in-alt me-2"></i>Seller Sign In
+                                </>
+                            )}
                         </button>
 
                         <div

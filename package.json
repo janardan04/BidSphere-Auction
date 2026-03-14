@@ -7,7 +7,7 @@
     "barcode": "^0.1.0",
     "bootstrap": "^5.3.5",
     "cra-template": "1.2.0",
-    "firebase": "^11.6.0",
+    "firebase": "^11.10.0",
     "js": "^0.1.0",
     "jsbarcode": "^3.11.6",
     "react": "^19.0.0",

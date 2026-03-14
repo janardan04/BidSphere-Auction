@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref, get, remove, onValue } from "firebase/database";
-import { auth, database } from "../firebase/firebaseConfig";
+import { database } from "../firebase/firebaseConfig";
+import { useAuth } from "../context/AuthContext";
 import "../styles/seller-dashboard.css";
 
 const SellerDashboard = () => {
+  const { user, userRole, logout } = useAuth();
   const [sellerName, setSellerName] = useState("Loading...");
   const [sellerEmail, setSellerEmail] = useState(null);
   const [products, setProducts] = useState([]);
@@ -16,36 +17,22 @@ const SellerDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const email = user.email;
-        setSellerName(user.displayName || email);
-        setSellerEmail(email);
+    if (!user) {
+      navigate("/seller-login");
+      return;
+    }
 
-        const sellerRef = ref(database, "sellers/" + user.uid);
-        get(sellerRef)
-          .then((snapshot) => {
-            if (snapshot.exists()) {
-              fetchSellerProducts(email);
-              fetchNotifications(email);
-            } else {
-              setError("This account is not registered as a seller.");
-              setLoading(false);
-              auth.signOut();
-              navigate("/seller-login");
-            }
-          })
-          .catch((error) => {
-            console.error("Error checking seller status:", error);
-            setError("Error verifying seller status: " + error.message);
-            setLoading(false);
-          });
-      } else {
-        navigate("/seller-login");
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+    setSellerName(user.displayName || user.email);
+    setSellerEmail(user.email);
+
+    if (userRole === 'seller') {
+      fetchSellerProducts(user.email);
+      fetchNotifications(user.email);
+    } else {
+      setError("This account is not registered as a seller.");
+      setLoading(false);
+    }
+  }, [user, userRole, navigate]);
 
   const getAuctionStatus = (startTime, endTime) => {
     const currentTime = new Date().getTime();
@@ -160,15 +147,14 @@ const SellerDashboard = () => {
       });
   };
 
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        navigate("/");
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-        alert("Failed to log out: " + error.message);
-      });
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Failed to log out: " + error.message);
+    }
   };
 
   const filteredProducts =

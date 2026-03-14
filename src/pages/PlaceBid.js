@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, push, set, get } from 'firebase/database';
 import { auth, database } from '../firebase/firebaseConfig';
 import { Carousel } from 'react-bootstrap';
+import { validateBidAmount } from '../utils/validation';
+import { notifyNewBid } from '../utils/notificationService';
 import '../styles/place-bid.css';
 
 const PlaceBid = () => {
@@ -10,13 +12,15 @@ const PlaceBid = () => {
     const [product, setProduct] = useState(null);
     const [liveAuctions, setLiveAuctions] = useState([]);
     const [bidAmount, setBidAmount] = useState('');
+    const [bidHistory, setBidHistory] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
     const [priceChanged, setPriceChanged] = useState(false);
-    const prevPrice = useRef(null); // Use ref to track previous price
+    const [fieldError, setFieldError] = useState('');
+    const prevPrice = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,7 +35,7 @@ const PlaceBid = () => {
                         setPriceChanged(true);
                         setTimeout(() => setPriceChanged(false), 800);
                     }
-                    prevPrice.current = currentPrice; // Update previous price
+                    prevPrice.current = currentPrice;
                     setProduct({ id, ...productData });
                 } else {
                     setError('Product not found.');
@@ -43,6 +47,20 @@ const PlaceBid = () => {
                 setLoading(false);
             }
         );
+
+        // Listen for bid history
+        const bidsRef = ref(database, `auctions/${id}/bids`);
+        const unsubscribeBids = onValue(bidsRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const bidsData = snapshot.val();
+                const bidsList = Object.entries(bidsData)
+                    .map(([bidId, bid]) => ({ id: bidId, ...bid }))
+                    .sort((a, b) => b.timestamp - a.timestamp);
+                setBidHistory(bidsList);
+            } else {
+                setBidHistory([]);
+            }
+        });
 
         const auctionsRef = ref(database, 'auctions');
         const unsubscribeAuctions = onValue(
@@ -73,6 +91,7 @@ const PlaceBid = () => {
 
         return () => {
             unsubscribeProduct();
+            unsubscribeBids();
             unsubscribeAuctions();
         };
     }, [id]);
@@ -81,6 +100,7 @@ const PlaceBid = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setFieldError('');
 
         if (!auth.currentUser) {
             setError('Please log in to place a bid.');
@@ -89,6 +109,12 @@ const PlaceBid = () => {
         }
 
         if (!product) return;
+
+        // Prevent seller from bidding on own product
+        if (auth.currentUser.email === product.seller || auth.currentUser.uid === product.sellerId) {
+            setError('You cannot bid on your own product.');
+            return;
+        }
 
         const currentTime = new Date().getTime();
         if (currentTime < product.startTime) {
@@ -100,18 +126,41 @@ const PlaceBid = () => {
             return;
         }
 
-        const bidValue = parseFloat(bidAmount);
-        if (isNaN(bidValue) || bidValue <= product.currentPrice) {
-            setError('Your bid must be higher than the current price.');
+        // Validate bid amount
+        const bidValidation = validateBidAmount(bidAmount, product.currentPrice);
+        if (bidValidation) {
+            setFieldError(bidValidation);
             return;
         }
 
+        const bidValue = parseFloat(bidAmount);
+
         try {
             const productRef = ref(database, `auctions/${id}`);
+            
+            // Update the auction with new highest bid
             await update(productRef, {
                 currentPrice: bidValue,
                 highestBidder: auth.currentUser.email,
             });
+
+            // Store bid in bid history
+            const bidsRef = ref(database, `auctions/${id}/bids`);
+            const newBidRef = push(bidsRef);
+            await set(newBidRef, {
+                bidder: auth.currentUser.email,
+                amount: bidValue,
+                timestamp: Date.now(),
+            });
+
+            // Notify the seller
+            await notifyNewBid(
+                product.seller,
+                product.productName,
+                bidValue,
+                auth.currentUser.email
+            );
+
             setSuccess('Bid placed successfully!');
             setBidAmount('');
         } catch (err) {
@@ -150,6 +199,10 @@ const PlaceBid = () => {
         : product?.image 
         ? [product.image] 
         : [];
+
+    const currentTime = Date.now();
+    const isAuctionActive = product && currentTime >= product.startTime && currentTime < product.endTime;
+    const isAuctionEnded = product && currentTime >= product.endTime;
 
     return (
         <div className="place-bid-page">
@@ -222,30 +275,93 @@ const PlaceBid = () => {
                                     <span className="meta-label">End Time:</span>
                                     <span>{product?.endTime ? new Date(product.endTime).toLocaleString() : 'N/A'}</span>
                                 </div>
+                                <div className="meta-item">
+                                    <span className="meta-label">Status:</span>
+                                    <span className={`badge bg-${isAuctionActive ? 'success' : isAuctionEnded ? 'danger' : 'secondary'}`}>
+                                        {isAuctionActive ? 'Active' : isAuctionEnded ? 'Ended' : 'Upcoming'}
+                                    </span>
+                                </div>
+                                <div className="meta-item">
+                                    <span className="meta-label">Total Bids:</span>
+                                    <span>{bidHistory.length}</span>
+                                </div>
                             </div>
 
-                            <div className="bid-form-card mt-4">
-                                <form onSubmit={handlePlaceBid} className="space-y-4">
-                                    <div className="form-group">
-                                        <label htmlFor="bidAmount" className="form-label">Your Bid (₹)</label>
-                                        <input
-                                            type="number"
-                                            className="form-control"
-                                            id="bidAmount"
-                                            value={bidAmount}
-                                            onChange={(e) => setBidAmount(e.target.value)}
-                                            min={(product?.currentPrice || 0) + 1}
-                                            required
-                                        />
-                                    </div>
-                                    {error && <div className="alert alert-danger">{error}</div>}
-                                    {success && <div className="alert alert-success">{success}</div>}
-                                    <button type="submit" className="btn btn-primary w-100">Place Bid</button>
-                                </form>
-                            </div>
+                            {isAuctionActive && (
+                                <div className="bid-form-card mt-4">
+                                    <form onSubmit={handlePlaceBid} className="space-y-4">
+                                        <div className="form-group">
+                                            <label htmlFor="bidAmount" className="form-label">Your Bid (₹)</label>
+                                            <input
+                                                type="number"
+                                                className={`form-control ${fieldError ? 'is-invalid' : ''}`}
+                                                id="bidAmount"
+                                                value={bidAmount}
+                                                onChange={(e) => {
+                                                    setBidAmount(e.target.value);
+                                                    setFieldError('');
+                                                }}
+                                                min={(product?.currentPrice || 0) + 1}
+                                                placeholder={`Min: ₹${((product?.currentPrice || 0) + Math.max(1, (product?.currentPrice || 0) * 0.01)).toFixed(0)}`}
+                                                required
+                                            />
+                                            {fieldError && (
+                                                <div className="invalid-feedback">{fieldError}</div>
+                                            )}
+                                        </div>
+                                        {error && <div className="alert alert-danger">{error}</div>}
+                                        {success && <div className="alert alert-success">{success}</div>}
+                                        <button type="submit" className="btn btn-primary w-100">Place Bid</button>
+                                    </form>
+                                </div>
+                            )}
+
+                            {isAuctionEnded && (
+                                <div className="alert alert-info mt-4">
+                                    <i className="fas fa-info-circle me-2"></i>
+                                    This auction has ended. 
+                                    {product?.highestBidder && ` Winner: ${product.highestBidder}`}
+                                </div>
+                            )}
+
+                            {!isAuctionActive && !isAuctionEnded && (
+                                <div className="alert alert-warning mt-4">
+                                    <i className="fas fa-clock me-2"></i>
+                                    This auction hasn't started yet. It begins on {product?.startTime ? new Date(product.startTime).toLocaleString() : 'N/A'}.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* Bid History */}
+                {bidHistory.length > 0 && (
+                    <div className="mt-5">
+                        <h3 className="section-title">Bid History</h3>
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Bidder</th>
+                                        <th>Amount</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {bidHistory.map((bid, index) => (
+                                        <tr key={bid.id}>
+                                            <td>{index + 1}</td>
+                                            <td>{bid.bidder}</td>
+                                            <td>₹{bid.amount.toFixed(2)}</td>
+                                            <td>{new Date(bid.timestamp).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-5">
                     <h3 className="section-title">Other Live Auctions</h3>

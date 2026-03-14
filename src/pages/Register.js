@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 import { auth, database } from '../firebase/firebaseConfig';
+import { validatePasswordStrength, getFirebaseAuthErrorMessage } from '../utils/validation';
 import '../styles/register.css';
 
 const Register = () => {
@@ -23,12 +24,17 @@ const Register = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState({ error: '', strength: 0, label: '' });
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        setErrors({ ...errors, [name]: '' }); // Clear error for the field being edited
+        setErrors({ ...errors, [name]: '' });
+        if (name === 'pass1') {
+            setPasswordStrength(validatePasswordStrength(value));
+        }
     };
 
     const validateForm = () => {
@@ -65,35 +71,35 @@ const Register = () => {
         return isValid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
         if (!validateForm()) return;
 
+        setLoading(true);
         const { userEmail: email, pass1: password, userName, gender, city } = formData;
 
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                return Promise.all([
-                    updateProfile(user, { displayName: userName }),
-                    set(ref(database, 'users/' + user.uid), {
-                        name: userName,
-                        email: email,
-                        gender: gender,
-                        city: city,
-                        role: 'user',
-                    }),
-                ]);
-            })
-            .then(() => {
-                console.log('User registered successfully');
-                navigate('/auctions'); // Redirect to view-products equivalent
-            })
-            .catch((error) => {
-                setError(error.message);
-            });
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            await Promise.all([
+                updateProfile(user, { displayName: userName }),
+                set(ref(database, 'users/' + user.uid), {
+                    name: userName,
+                    email: email,
+                    gender: gender,
+                    city: city,
+                    role: 'user',
+                    createdAt: Date.now(),
+                }),
+            ]);
+            navigate('/auctions');
+        } catch (err) {
+            setError(getFirebaseAuthErrorMessage(err.code));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -198,6 +204,19 @@ const Register = () => {
                                     }`}
                                 ></i>
                             </span>
+                            {formData.pass1 && (
+                                <div className="password-strength mt-1">
+                                    <div className="strength-bar">
+                                        <div
+                                            className={`strength-fill strength-${passwordStrength.strength}`}
+                                            style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
+                                        ></div>
+                                    </div>
+                                    <small className={`strength-label strength-text-${passwordStrength.strength}`}>
+                                        {passwordStrength.label}
+                                    </small>
+                                </div>
+                            )}
                             <div id="passwordError" className="text-danger">
                                 {errors.pass1}
                             </div>
@@ -272,8 +291,13 @@ const Register = () => {
                             id="registerBtn"
                             type="submit"
                             className="btn btn-primary w-100"
+                            disabled={loading}
                         >
-                            <i className="fas fa-user-plus me-1"></i> Register Now
+                            {loading ? (
+                                <><span className="spinner-border spinner-border-sm me-2" role="status"></span>Registering...</>
+                            ) : (
+                                <><i className="fas fa-user-plus me-1"></i> Register Now</>
+                            )}
                         </button>
 
                         <div className="text-center mt-3">
