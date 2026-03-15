@@ -2,7 +2,7 @@
 // In-app notification system using Firebase Realtime Database
 // Stores notifications in RTDB and uses onValue listeners for real-time updates
 
-import { ref, push, set, onValue, update, get } from 'firebase/database';
+import { ref, push, set, onValue, update, get, remove } from 'firebase/database';
 import { database } from '../firebase/firebaseConfig';
 
 /**
@@ -130,6 +130,80 @@ export const markAllNotificationsRead = async (userId) => {
         }
     } catch (error) {
         console.error('Error marking all notifications as read:', error);
+    }
+};
+
+/**
+ * Mark all seller notifications as read
+ */
+export const markAllSellerNotificationsRead = async (sellerEmail) => {
+    try {
+        const notifRef = ref(database, 'notifications');
+        const snapshot = await get(notifRef);
+        if (snapshot.exists()) {
+            const updates = {};
+            Object.entries(snapshot.val()).forEach(([key, notification]) => {
+                if (notification.sellerEmail === sellerEmail && !notification.read) {
+                    updates[`${key}/read`] = true;
+                }
+            });
+            
+            // Only update if there are actually unread notifications
+            if (Object.keys(updates).length > 0) {
+                await update(notifRef, updates);
+            }
+        }
+    } catch (error) {
+        console.error('Error marking seller notifications as read:', error);
+    }
+};
+
+/**
+ * Delete a specific notification (either user or seller table)
+ */
+export const deleteIndividualNotification = async (userId, notificationId, isSellerNotif) => {
+    try {
+        if (isSellerNotif) {
+            const notifRef = ref(database, `notifications/${notificationId}`);
+            await remove(notifRef);
+        } else {
+            const notifRef = ref(database, `userNotifications/${userId}/${notificationId}`);
+            await remove(notifRef);
+        }
+    } catch (error) {
+        console.error('Error deleting individual notification:', error);
+    }
+};
+
+/**
+ * Clear all notifications for a specific user (and seller if applicable)
+ */
+export const clearAllNotifications = async (userId, userEmail, isSeller) => {
+    try {
+        // 1. Clear regular user notifications
+        const userNotifsRef = ref(database, `userNotifications/${userId}`);
+        await remove(userNotifsRef);
+
+        // 2. Clear seller notifications if they are a seller
+        if (isSeller && userEmail) {
+            const sellerNotifsRef = ref(database, 'notifications');
+            const snapshot = await get(sellerNotifsRef);
+            if (snapshot.exists()) {
+                const updates = {};
+                // We use update with null to delete multiple specific children at once
+                Object.entries(snapshot.val()).forEach(([key, notification]) => {
+                    if (notification.sellerEmail === userEmail) {
+                        updates[key] = null;
+                    }
+                });
+                
+                if (Object.keys(updates).length > 0) {
+                    await update(sellerNotifsRef, updates);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing all notifications:', error);
     }
 };
 

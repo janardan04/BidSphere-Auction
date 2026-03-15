@@ -48,13 +48,13 @@
   }
   
   .login-header h2 {
-    color: var(--primary-color);
-    font-weight: 600;
+    color: #2c3e50; /* Darker color for better contrast against light background */
+    font-weight: 700;
     font-size: calc(1.3rem + 0.6vw);
   }
   
   .login-header p {
-    color: #6c757d;
+    color: #495057; /* Darker muted text for readability */
   }
   
   .form-control {
@@ -152,12 +152,18 @@
   /* Bootstrap 5 responsive adjustments */
   @media (max-width: 576px) {
     .login-container {
-      max-width: 95%;
-      padding: 10px;
+      max-width: 100%;
+      padding: 15px;
+      margin: 0.5rem auto;
     }
     
     .login-card {
-      padding: 1.5rem;
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+    }
+
+    .login-header h2 {
+        font-size: 1.5rem;
     }
   }
   
@@ -192,6 +198,16 @@
   .form-floating {
     margin-bottom: 0.75rem !important;
   }
+}
+
+/* Flex wrap for remember me and forgot password */
+.login-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 /* Fix for Sign In button on mobile view */

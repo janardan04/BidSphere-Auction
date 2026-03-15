@@ -95,25 +95,6 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-
-          <div className="admin-profile">
-            <span className="admin-name">Admin</span>
-            <Dropdown align="end">
-              <Dropdown.Toggle
-                variant="link"
-                id="dropdown-basic"
-                className="avatar-dropdown"
-              >
-                <div className="avatar">Jay</div>
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="dropdown-menu-animated">
-                <Dropdown.Divider />
-                <Dropdown.Item onClick={handleLogout}>
-                  <BoxArrowRight className="dropdown-icon" /> Logout
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
         </div>
 
         {error && (
@@ -185,8 +166,8 @@ const AdminDashboard = () => {
                   {activeTab === "users"
                     ? "User Management"
                     : activeTab === "sellers"
-                    ? "Seller Management"
-                    : "Auction Management"}
+                      ? "Seller Management"
+                      : "Auction Management"}
                 </h3>
                 <div className="header-actions">
                   <Button
@@ -354,8 +335,8 @@ const AdminDashboard = () => {
                                     auction.paymentStatus === "Paid"
                                       ? "success"
                                       : auction.paymentStatus === "Pending"
-                                      ? "warning"
-                                      : "danger"
+                                        ? "warning"
+                                        : "danger"
                                   }
                                 >
                                   {auction.paymentStatus}

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ref, onValue } from "firebase/database";
+import { database } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
-import { listenForUserNotifications, markAllNotificationsRead } from "../utils/notificationService";
+import { listenForUserNotifications, markAllNotificationsRead, markAllSellerNotificationsRead, deleteIndividualNotification, clearAllNotifications } from "../utils/notificationService";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "../styles/header.css";
 
@@ -11,18 +13,74 @@ const Header = () => {
     const [isNavCollapsed, setIsNavCollapsed] = useState(true);
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
+    const notificationsRef = useRef(null);
 
     // Listen for real-time notifications
     useEffect(() => {
+        let unsubscribeUser = () => {};
+        let unsubscribeSeller = () => {};
+
         if (user) {
-            const unsubscribe = listenForUserNotifications(user.uid, (notifs) => {
-                setNotifications(notifs);
+            // Listen for regular user notifications
+            unsubscribeUser = listenForUserNotifications(user.uid, (userNotifs) => {
+                setNotifications((prev) => {
+                    // Merge and sort
+                    const merged = [...userNotifs, ...prev.filter(n => n.isSellerNotif)];
+                    return merged.sort((a, b) => b.timestamp - a.timestamp);
+                });
             });
-            return () => unsubscribe();
+
+            // If seller, also listen for seller notifications
+            if (userRole === 'seller' && user.email) {
+                const notificationsRef = ref(database, "notifications");
+                unsubscribeSeller = onValue(notificationsRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const notificationsData = snapshot.val();
+                        const sellerNotifications = Object.entries(notificationsData)
+                            .filter(([_, notification]) => notification.sellerEmail === user.email)
+                            .map(([id, notification]) => ({
+                                id,
+                                message: notification.message,
+                                title: notification.title || 'Notification',
+                                timestamp: notification.timestamp,
+                                read: notification.read,
+                                isSellerNotif: true
+                            }));
+                            
+                        setNotifications((prev) => {
+                            // Merge and sort
+                            const merged = [...prev.filter(n => !n.isSellerNotif), ...sellerNotifications];
+                            return merged.sort((a, b) => b.timestamp - a.timestamp);
+                        });
+                    } else {
+                        // If the entire seller notification node is completely empty / deleted, clear them out
+                        setNotifications((prev) => prev.filter(n => !n.isSellerNotif));
+                    }
+                });
+            }
         } else {
             setNotifications([]);
         }
-    }, [user]);
+
+        return () => {
+            unsubscribeUser();
+            unsubscribeSeller();
+        };
+    }, [user, userRole]);
+
+    // Handle clicks outside the notification bell
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -50,6 +108,24 @@ const Header = () => {
     const handleMarkAllRead = async () => {
         if (user) {
             await markAllNotificationsRead(user.uid);
+            if (userRole === 'seller' && user.email) {
+                await markAllSellerNotificationsRead(user.email);
+            }
+        }
+    };
+
+    const handleClearAll = async () => {
+        if (user) {
+            const isSeller = userRole === 'seller';
+            await clearAllNotifications(user.uid, user.email, isSeller);
+            setShowNotifications(false); // Close dropdown after clearing
+        }
+    };
+
+    const handleDeleteNotification = async (e, notifId, isSellerNotif) => {
+        e.stopPropagation(); // Prevent dropdown from closing if clicking on the panel
+        if (user) {
+            await deleteIndividualNotification(user.uid, notifId, isSellerNotif);
         }
     };
 
@@ -124,14 +200,6 @@ const Header = () => {
                                         Seller Login
                                     </button>
                                 </li>
-                                <li className="nav-item">
-                                    <button 
-                                        className="nav-link nav-button" 
-                                        onClick={() => navigateTo("/admin-login")}
-                                    >
-                                        Admin Login
-                                    </button>
-                                </li>
                             </>
                         )}
                         {user && (
@@ -166,7 +234,7 @@ const Header = () => {
                                     </li>
                                 )}
                                 {/* Notification bell */}
-                                <li className="nav-item position-relative">
+                                <li className="nav-item position-relative" ref={notificationsRef}>
                                     <button
                                         className="nav-link nav-button"
                                         onClick={() => setShowNotifications(!showNotifications)}
@@ -184,12 +252,22 @@ const Header = () => {
                                             <div className="notification-header">
                                                 <h6 className="mb-0">Notifications</h6>
                                                 {unreadCount > 0 && (
-                                                    <button
-                                                        className="btn btn-sm btn-link"
-                                                        onClick={handleMarkAllRead}
-                                                    >
-                                                        Mark all read
-                                                    </button>
+                                                    <>
+                                                        <button
+                                                            className="btn btn-sm btn-link text-primary me-2 p-0"
+                                                            onClick={handleMarkAllRead}
+                                                            title="Mark all read"
+                                                        >
+                                                            <i className="fas fa-check-double me-1"></i> Read All
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-link text-danger p-0"
+                                                            onClick={handleClearAll}
+                                                            title="Clear all notifications"
+                                                        >
+                                                            <i className="fas fa-trash-alt me-1"></i> Clear All
+                                                        </button>
+                                                    </>
                                                 )}
                                             </div>
                                             <div className="notification-list">
@@ -199,9 +277,18 @@ const Header = () => {
                                                             key={notif.id}
                                                             className={`notification-item ${!notif.read ? 'unread' : ''}`}
                                                         >
-                                                            <div className="notification-title">{notif.title}</div>
-                                                            <div className="notification-message">{notif.message}</div>
-                                                            <div className="notification-time">
+                                                            <div className="d-flex justify-content-between align-items-start">
+                                                                <div className="notification-title fw-bold mb-1">{notif.title}</div>
+                                                                <button 
+                                                                    className="btn btn-sm btn-link text-muted p-0 ms-2" 
+                                                                    onClick={(e) => handleDeleteNotification(e, notif.id, notif.isSellerNotif)}
+                                                                    title="Delete notification"
+                                                                >
+                                                                    <i className="fas fa-times"></i>
+                                                                </button>
+                                                            </div>
+                                                            <div className="notification-message text-muted small mb-1">{notif.message}</div>
+                                                            <div className="notification-time text-xs text-muted">
                                                                 {new Date(notif.timestamp).toLocaleString()}
                                                             </div>
                                                         </div>

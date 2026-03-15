@@ -23,15 +23,16 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
+                setLoading(true); // Ensure loading is true while we fetch the role
                 setUser(firebaseUser);
                 // Determine user role by checking each collection
                 try {
-                    // Check users collection
-                    const userRef = ref(database, `users/${firebaseUser.uid}`);
-                    const userSnap = await get(userRef);
-                    if (userSnap.exists()) {
-                        const data = userSnap.val();
-                        setUserRole(data.role || 'user');
+                    // Check admins collection FIRST (Highest privilege)
+                    const adminRef = ref(database, `admins/${firebaseUser.uid}`);
+                    const adminSnap = await get(adminRef);
+                    if (adminSnap.exists()) {
+                        const data = adminSnap.val();
+                        setUserRole('admin');
                         setUserProfile(data);
                         setLoading(false);
                         return;
@@ -48,12 +49,12 @@ export const AuthProvider = ({ children }) => {
                         return;
                     }
 
-                    // Check admins collection
-                    const adminRef = ref(database, `admins/${firebaseUser.uid}`);
-                    const adminSnap = await get(adminRef);
-                    if (adminSnap.exists()) {
-                        const data = adminSnap.val();
-                        setUserRole('admin');
+                    // Check users collection
+                    const userRef = ref(database, `users/${firebaseUser.uid}`);
+                    const userSnap = await get(userRef);
+                    if (userSnap.exists()) {
+                        const data = userSnap.val();
+                        setUserRole(data.role || 'user');
                         setUserProfile(data);
                         setLoading(false);
                         return;

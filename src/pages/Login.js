@@ -190,7 +190,7 @@ const Login = () => {
                             </div>
 
                             <div
-                                className="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeIn"
+                                className="login-actions-row animate__animated animate__fadeIn"
                                 style={{ animationDelay: '0.6s' }}
                             >
                                 <div className="form-check">

@@ -74,6 +74,25 @@ const Payment = () => {
 
     set(newPaymentRef, paymentData)
       .then(() => {
+        // Send notification to the seller
+        const notificationsRef = ref(database, 'notifications');
+        const newNotificationRef = push(notificationsRef);
+        const sellerEmailRaw = auction.sellerId || auction.seller;
+        const safeSellerEmail = sellerEmailRaw.replace(/[.#$[\]]/g, '_');
+        
+        const notificationData = {
+          sellerEmail: auction.seller,
+          title: 'Payment Received! 🎉',
+          message: `The winner (${auction.highestBidder.split('@')[0]}) has successfully paid ₹${auction.currentPrice.toFixed(2)} for your auction: ${auction.productName}.`,
+          type: 'payment_success',
+          auctionId: auctionId,
+          read: false,
+          timestamp: Date.now()
+        };
+        
+        // We write the notification asynchronously without awaiting to not block the success redirect
+        set(newNotificationRef, notificationData).catch(err => console.error("Failed to send seller notification:", err));
+
         setSuccess('Payment successful!');
         setTimeout(() => navigate(`/receipt?auctionId=${auctionId}`), 2000);
       })

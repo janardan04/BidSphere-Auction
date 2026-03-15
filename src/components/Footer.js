@@ -173,6 +173,28 @@ const Footer = () => {
                     margin: 0;
                     color: #6c757d;
                 }
+
+                @media (max-width: 768px) {
+                    .footer-content {
+                        flex-direction: column;
+                        text-align: center;
+                        padding: 20px 15px;
+                    }
+                    
+                    .footer-section {
+                        margin: 15px 0;
+                        width: 100%;
+                    }
+
+                    .footer-section h3 {
+                        display: inline-block;
+                    }
+
+                    .footer-section h3::after {
+                        left: 50%;
+                        transform: translateX(-50%);
+                    }
+                }
                 `}
             </style>
             <div className="footer-top">

@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ref, get, set, remove } from "firebase/database";
 import { database } from "../firebase/firebaseConfig";
 import { formatAuctions, formatUsersOrSellers, filterData } from "./admin";
+import { useAuth } from "../context/AuthContext";
 
 export const useAdminDashboard = () => {
+  const { logout } = useAuth();
   const [users, setUsers] = useState([]);
   const [sellers, setSellers] = useState([]);
   const [auctions, setAuctions] = useState([]);
@@ -26,22 +28,8 @@ export const useAdminDashboard = () => {
     pendingPayments: 0,
   });
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Authentication check
-  useEffect(() => {
-    const { state } = location;
-    if (
-      !state ||
-      !state.isAuthenticated ||
-      state.email !== "bidsphere@gmail.com"
-    ) {
-      setError("You are not authorized to access this page.");
-      navigate("/admin-login");
-    }
-  }, [location, navigate]);
-
-  // Fetch data from Firebase
+  // Authentication check is handled by ProtectedRoute component
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -329,9 +317,14 @@ export const useAdminDashboard = () => {
   };
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
-      navigate("/admin-login");
+      try {
+        await logout();
+        navigate("/admin-login");
+      } catch (err) {
+        setError("Failed to logout: " + err.message);
+      }
     }
   };
 
